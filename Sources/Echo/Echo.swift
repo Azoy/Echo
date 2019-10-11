@@ -9,5 +9,5 @@
 public func reflect<T>(_ type: T.Type) -> Metadata {
   let ptr = unsafeBitCast(type, to: UnsafeRawPointer.self)
 
-  return getMetadata(from: ptr)!
+  return getMetadata(at: ptr)
 }

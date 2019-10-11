@@ -8,21 +8,19 @@
 protocol RelativePointer {
   associatedtype Pointee
   
-  var ptr: UnsafeRawPointer { get }
   var offset: Int32 { get }
-  var nullable: Bool { get }
-  var address: UnsafeRawPointer { get }
-  var pointee: Pointee? { get }
   
-  func load<T>(as type: T.Type) -> T?
+  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer
+  func load<T>(from ptr: UnsafeRawPointer, as type: T.Type) -> T?
+  func pointee(from ptr: UnsafeRawPointer) -> Pointee?
 }
 
 extension RelativePointer {
-  var address: UnsafeRawPointer {
+  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
     ptr.advanced(by: Int(offset))
   }
   
-  var pointee: Pointee? {
-    load(as: Pointee.self)
+  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
+    load(from: ptr, as: Pointee.self)
   }
 }

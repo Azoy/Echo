@@ -8,32 +8,38 @@
 public protocol ContextDescriptor {
   var ptr: UnsafeRawPointer { get }
   var flags: ContextDescriptorFlags { get }
-  var parentContextDescriptor: ContextDescriptor? { get }
-  
-  init(ptr: UnsafeRawPointer)
+  var parent: ContextDescriptor? { get }
 }
 
 extension ContextDescriptor {
+  var _base: _Descriptor {
+    ptr.load(as: _Descriptor.self)
+  }
+  
   public var flags: ContextDescriptorFlags {
     ptr.load(as: ContextDescriptorFlags.self)
   }
   
-  public var parentContextDescriptor: ContextDescriptor? {
-    let address = ptr.offset(of: 1, as: Int32.self)
-    let relativePtr = RelativeIndirectablePointer<_BaseDescriptor>(
-      ptr: address,
-      offset: address.load(as: Int32.self),
-      nullable: true
-    )
+  public var parent: ContextDescriptor? {
+    let ptr = self.ptr.offset32(of: 1)
     
-    return getParentDescriptor(relativePtr)
+    guard let _parent = _base._parent.pointee(from: ptr) else {
+      return nil
+    }
+    
+    switch _parent._flags.kind {
+    case .module:
+      return ModuleDescriptor(ptr: _base._parent.address(from: ptr))
+    default:
+      return nil
+    }
   }
 }
 
 // This is used as a base type that can be bit casted to.
-struct _BaseDescriptor {
-  let flags: ContextDescriptorFlags
-  let parent: Int32 // This is an offset for a relative pointer
+struct _Descriptor {
+  let _flags: ContextDescriptorFlags
+  let _parent: RelativeIndirectablePointer<_Descriptor>
 }
 
 public enum ContextDescriptorKind: Int {
@@ -69,23 +75,5 @@ public struct ContextDescriptorFlags {
   
   var kindSpecificFlags: UInt16 {
     UInt16((value >> 0xF) & 0xFFFF)
-  }
-  
-}
-
-func getParentDescriptor<T: RelativePointer>(
-  _ _parentDescriptor: T
-) -> ContextDescriptor? where T.Pointee == _BaseDescriptor {
-  guard let base = _parentDescriptor.pointee else {
-    return nil
-  }
-  
-  switch base.flags.kind {
-  case .module:
-    return ModuleDescriptor(ptr: _parentDescriptor.address)
-  case .struct:
-    return StructDescriptor(ptr: _parentDescriptor.address)
-  default:
-    return nil
   }
 }

@@ -5,17 +5,78 @@
 //  Created by Alejandro Alonso on 8/15/19.
 //
 
-public typealias CFunc = @convention(c) () -> ()
-
 public struct ValueWitnessTable {
-  public let initializeBufferWithCopyOfBuffer: UnsafePointer<CFunc>
-  public let destroy: UnsafePointer<CFunc>
-  public let initializeWithCopy: UnsafePointer<CFunc>
-  public let assignWithCopy: UnsafePointer<CFunc>
-  public let initializeWithTake: UnsafePointer<CFunc>
-  public let assignWithTake: UnsafePointer<CFunc>
-  public let getEnumTagSinglePayload: UnsafePointer<CFunc>
-  public let storeEnumTagSinglePayload: UnsafePointer<CFunc>
+  public let initializeBufferWithCopyOfBuffer: @convention(c) (
+    // Destination buffer
+    UnsafeRawPointer,
+    // Source buffer
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UnsafeRawPointer // returns destination value
+  
+  public let destroy: @convention(c) (
+    // Value
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> ()
+  
+  public let initializeWithCopy: @convention(c) (
+    // Destination value
+    UnsafeRawPointer,
+    // Source value
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UnsafeRawPointer // returns destination
+  
+  public let assignWithCopy: @convention(c) (
+    // Destination value
+    UnsafeRawPointer,
+    // Source value
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UnsafeRawPointer // returns destination
+  
+  public let initializeWithTake: @convention(c) (
+    // Destination value
+    UnsafeRawPointer,
+    // Source value
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UnsafeRawPointer // returns destination
+  
+  public let assignWithTake: @convention(c) (
+    // Destination value
+    UnsafeRawPointer,
+    // Source value
+    UnsafeRawPointer,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UnsafeRawPointer // returns destination
+  
+  public let getEnumTagSinglePayload: @convention(c) (
+    // Instance of single payload enum
+    UnsafeRawPointer,
+    // Number of empty cases
+    UInt32,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> UInt32 // returns tag of enum
+  public let storeEnumTagSinglePayload: @convention(c) (
+    // Instance of single payload enum
+    UnsafeRawPointer,
+    // Which enum case
+    UInt32,
+    // Number of empty cases
+    UInt32,
+    // Type metadata
+    UnsafeRawPointer
+  ) -> ()
+  
   public let size: Int
   public let stride: Int
   public let flags: ValueWitnessTableFlags

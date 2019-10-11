@@ -8,86 +8,73 @@
 public protocol TypeContextDescriptor: ContextDescriptor {
   var typeFlags: TypeContextDescriptorFlags { get }
   var name: String { get }
-  var accessorFunc: Int32 { get }
-  var fieldDescriptor: FieldDescriptor { get }
-  var numFields: Int32 { get }
-  var fieldOffset: Int32 { get }
+  var accessor: Int32 { get }
+  var fields: FieldDescriptor { get }
 }
 
 extension TypeContextDescriptor {
+  var _typeDescriptor: _TypeDescriptor {
+    ptr.load(as: _TypeDescriptor.self)
+  }
+  
   public var typeFlags: TypeContextDescriptorFlags {
-    TypeContextDescriptorFlags(bits: flags.kindSpecificFlags)
+    TypeContextDescriptorFlags(bits: UInt64(flags.kindSpecificFlags))
   }
   
   public var name: String {
-    let address = ptr.offset(of: 2, as: Int32.self)
-    let relativePtr = RelativeDirectPointer<CChar>(
-      ptr: address,
-      offset: address.load(as: Int32.self)
-    )
-    
-    return String(cString: UnsafePointer<CChar>(relativePtr.address._rawValue))
+    let address = _typeDescriptor._name.address(from: ptr.offset32(of: 2))
+    return String(cString: UnsafePointer<CChar>(address._rawValue))
   }
   
-  public var accessorFunc: Int32 {
-    let address = ptr.offset(of: 3, as: Int32.self)
-    return address.load(as: Int32.self)
+  public var accessor: Int32 {
+    _typeDescriptor._accessor
   }
   
-  public var fieldDescriptor: FieldDescriptor {
-    let address = ptr.offset(of: 4, as: Int32.self)
-    let relativePtr = RelativeDirectPointer<FieldDescriptor>(
-      ptr: address,
-      offset: address.load(as: Int32.self),
-      nullable: true
-    )
-    
-    return FieldDescriptor(ptr: relativePtr.address)
-  }
-  
-  public var numFields: Int32 {
-    let address = ptr.offset(of: 5, as: Int32.self)
-    return address.load(as: Int32.self)
-  }
-  
-  public var fieldOffset: Int32 {
-    let address = ptr.offset(of: 6, as: Int32.self)
-    return address.load(as: Int32.self)
+  public var fields: FieldDescriptor {
+    let address = _typeDescriptor._fields.address(from: ptr.offset32(of: 4))
+    return FieldDescriptor(ptr: address)
   }
 }
 
-public struct TypeContextDescriptorFlags: FlagSet {
+struct _TypeDescriptor {
+  let _flags: ContextDescriptorFlags
+  let _parent: RelativeIndirectablePointer<_Descriptor>
+  let _name: RelativeDirectPointer<CChar>
+  let _accessor: Int32
+  let _fields: RelativeDirectPointer<_FieldDescriptor>
+}
+
+public struct TypeContextDescriptorFlags {
   
-  let bits: UInt16
+  let bits: UInt64
   
-  public var classAreImmediateMembersNegative: Bool {
-    getFlag(at: 12)
-  }
-  
-  public var classHasOverrideTable: Bool {
-    getFlag(at: 14)
-  }
-  
-  public var classHasResilientSuperclass: Bool {
-    getFlag(at: 13)
-  }
-  
-  public var classHasVTable: Bool {
-    getFlag(at: 15)
+  public var metadataInitKind: MetadataInitializationKind {
+    MetadataInitializationKind(rawValue: UInt16(bits) & 0x3)!
   }
   
   public var hasImportInfo: Bool {
-    getFlag(at: 2)
-  }
-  
-  public var metadataInitKind: MetadataInitializationKind {
-    MetadataInitializationKind(rawValue: getField(at: 0, bitWidth: 2))!
+    bits & 0x4 == 1
   }
   
   public var resilientSuperclassRefKind: TypeReferenceKind {
-    TypeReferenceKind(rawValue: getField(at: 9, bitWidth: 3))!
+    TypeReferenceKind(rawValue: UInt16(bits) & 0xE00)!
   }
   
+  public var classAreImmediateMembersNegative: Bool {
+    bits & 0x1000 == 1
+  }
+  
+  public var classHasResilientSuperclass: Bool {
+    bits & 0x2000 == 1
+  }
+  
+  public var classHasOverrideTable: Bool {
+    bits & 0x4000 == 1
+  }
+  
+  public var classHasVTable: Bool {
+    bits & 0x8000 == 1
+  }
 }
 
 extension TypeContextDescriptorFlags {

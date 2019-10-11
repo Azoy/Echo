@@ -6,15 +6,13 @@
 //
 
 struct RelativeDirectPointer<Pointee>: RelativePointer {
-  let ptr: UnsafeRawPointer
   let offset: Int32
-  var nullable = false
   
-  func load<T>(as type: T.Type) -> T? {
-    if nullable && offset == 0 {
+  func load<T>(from ptr: UnsafeRawPointer, as type: T.Type) -> T? {
+    if offset == 0 {
       return nil
     }
     
-    return address.load(as: T.self)
+    return address(from: ptr).load(as: T.self)
   }
 }

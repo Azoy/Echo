@@ -15,27 +15,41 @@ public protocol Metadata {
 
 extension Metadata {
   public var vwt: ValueWitnessTable {
-    let address = ptr.offset(of: -1, as: Int.self)
+    let address = ptr.offset(of: -1)
     return address.load(as: UnsafePointer<ValueWitnessTable>.self).pointee
   }
 }
 
 public enum MetadataKind: Int {
   case `class` = 0
-  case `struct` = 512 // (0 | Flags.isNonHeap)
-  case `enum` = 513 // (1 | Flags.isNonHeap)
-  case optional = 514 // (2 | Flags.isNonHeap)
-  case foreignClass = 515 // (3 | Flags.isNonHeap)
-  case opaque = 768 // (0 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case tuple = 769 // (1 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case function = 770 // (2 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case existential = 771 // (3 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case metatype = 772 // (4 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case objcClassWrapper = 773 // (5 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case existentialMetatype = 774 // (6 | Flags.isRuntimePrivate | Flags.isNonHeap)
-  case heapLocalVariable = 1024 // (0 | Flags.isNonType)
-  case heapGenericLocalVariable = 1280 // (0 | Flags.isRuntimePrivate | Flags.isNonType)
-  case errorObject = 1281 // (1 | Flags.isRuntimePrivate | Flags.isNonType)
+  // (0 | Flags.isNonHeap)
+  case `struct` = 512
+  // (1 | Flags.isNonHeap)
+  case `enum` = 513
+  // (2 | Flags.isNonHeap)
+  case optional = 514
+  // (3 | Flags.isNonHeap)
+  case foreignClass = 515
+  // (0 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case opaque = 768
+  // (1 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case tuple = 769
+  // (2 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case function = 770
+  // (3 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case existential = 771
+  // (4 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case metatype = 772
+  // (5 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case objcClassWrapper = 773
+  // (6 | Flags.isRuntimePrivate | Flags.isNonHeap)
+  case existentialMetatype = 774
+  // (0 | Flags.isNonType)
+  case heapLocalVariable = 1024
+  // (0 | Flags.isRuntimePrivate | Flags.isNonType)
+  case heapGenericLocalVariable = 1280
+  // (1 | Flags.isRuntimePrivate | Flags.isNonType)
+  case errorObject = 1281
 }
 
 extension MetadataKind {
@@ -46,18 +60,17 @@ extension MetadataKind {
   }
 }
 
-func getMetadata(from ptr: UnsafeRawPointer) -> Metadata? {
-  print("Kind: \(ptr.load(as: Int.self))")
+func getMetadata(at ptr: UnsafeRawPointer) -> Metadata {
   let kind = MetadataKind(rawValue: ptr.load(as: Int.self))!
   
   switch kind {
   case .struct:
     return StructMetadata(ptr: ptr)
-  case .enum:
+  case .enum, .optional:
     return EnumMetadata(ptr: ptr)
-  //case .tuple:
-    //return TupleMetadata(ptr: ptr)
+  case .tuple:
+    return TupleMetadata(ptr: ptr)
   default:
-    return nil
+    fatalError()
   }
 }

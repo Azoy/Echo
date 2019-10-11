@@ -9,18 +9,18 @@ public struct ModuleDescriptor: ContextDescriptor {
 
   public let ptr: UnsafeRawPointer
   
+  var _descriptor: _ModuleDescriptor {
+    ptr.load(as: _ModuleDescriptor.self)
+  }
+  
   public var name: String {
-    let address = ptr.offset(of: 2, as: Int32.self)
-    let relativePtr = RelativeDirectPointer<CChar>(
-      ptr: address,
-      offset: address.load(as: Int32.self)
-    )
-    
-    return String(cString: UnsafePointer<CChar>(relativePtr.address._rawValue))
+    let address = _descriptor._name.address(from: ptr.offset32(of: 2))
+    return String(cString: UnsafePointer<CChar>(address._rawValue))
   }
-  
-  public init(ptr: UnsafeRawPointer) {
-    self.ptr = ptr
-  }
-  
+}
+
+struct _ModuleDescriptor {
+  let _flags: ContextDescriptorFlags
+  let _parent: RelativeIndirectablePointer<_Descriptor>
+  let _name: RelativeDirectPointer<CChar>
 }
