@@ -36,4 +36,9 @@ public struct Mirror {
     self.children = children
     self.displayStyle = displayStyle
   }
+  
+  public func descendant(_ first: MirrorPath, _ rest: MirrorPath...) -> Any? {
+    // FIXME: I just query the first parameter...
+    children.first { $0.label == first as? String }?.value
+  }
 }
