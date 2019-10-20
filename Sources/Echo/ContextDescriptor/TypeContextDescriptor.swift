@@ -2,13 +2,14 @@
 //  TypeContextDescriptor.swift
 //  Echo
 //
-//  Created by Alejandro Alonso on 8/15/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 public protocol TypeContextDescriptor: ContextDescriptor {
   var typeFlags: TypeContextDescriptorFlags { get }
   var name: String { get }
-  var accessor: Int32 { get }
+  var accessor: UnsafeRawPointer { get }
   var fields: FieldDescriptor { get }
 }
 
@@ -26,8 +27,12 @@ extension TypeContextDescriptor {
     return String(cString: UnsafePointer<CChar>(address._rawValue))
   }
   
-  public var accessor: Int32 {
-    _typeDescriptor._accessor
+  public var accessor: UnsafeRawPointer {
+    _typeDescriptor._accessor.pointee(from: ptr.offset32(of: 3))!
+  }
+  
+  public var isReflectable: Bool {
+    _typeDescriptor._fields.offset != 0
   }
   
   public var fields: FieldDescriptor {
@@ -40,7 +45,7 @@ struct _TypeDescriptor {
   let _flags: ContextDescriptorFlags
   let _parent: RelativeIndirectablePointer<_Descriptor>
   let _name: RelativeDirectPointer<CChar>
-  let _accessor: Int32
+  let _accessor: RelativeDirectPointer<UnsafeRawPointer>
   let _fields: RelativeDirectPointer<_FieldDescriptor>
 }
 
@@ -53,7 +58,7 @@ public struct TypeContextDescriptorFlags {
   }
   
   public var hasImportInfo: Bool {
-    bits & 0x4 == 1
+    bits & 0x4 == 0x4
   }
   
   public var resilientSuperclassRefKind: TypeReferenceKind {
@@ -61,28 +66,26 @@ public struct TypeContextDescriptorFlags {
   }
   
   public var classAreImmediateMembersNegative: Bool {
-    bits & 0x1000 == 1
+    bits & 0x1000 == 0x1000
   }
   
   public var classHasResilientSuperclass: Bool {
-    bits & 0x2000 == 1
+    bits & 0x2000 == 0x2000
   }
   
   public var classHasOverrideTable: Bool {
-    bits & 0x4000 == 1
+    bits & 0x4000 == 0x4000
   }
   
   public var classHasVTable: Bool {
-    bits & 0x8000 == 1
+    bits & 0x8000 == 0x8000
   }
 }
 
-extension TypeContextDescriptorFlags {
-  public enum MetadataInitializationKind: UInt16 {
-    case none = 0
-    case singleton = 1
-    case foreign = 2
-  }
+public enum MetadataInitializationKind: UInt16 {
+  case none = 0
+  case singleton = 1
+  case foreign = 2
 }
 
 public enum TypeReferenceKind: UInt16 {

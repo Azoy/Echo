@@ -12,8 +12,12 @@ let package = Package(
   ],
   targets: [
     .target(
-      name: "Echo",
+      name: "CEcho",
       dependencies: []
+    ),
+    .target(
+      name: "Echo",
+      dependencies: ["CEcho"]
     ),
     .testTarget(
       name: "EchoTests",

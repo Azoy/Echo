@@ -2,7 +2,8 @@
 //  FieldDescriptor.swift
 //  Echo
 //
-//  Created by Alejandro Alonso on 8/17/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 public struct FieldDescriptor {
@@ -10,6 +11,10 @@ public struct FieldDescriptor {
   
   var _descriptor: _FieldDescriptor {
     ptr.load(as: _FieldDescriptor.self)
+  }
+  
+  public var hasMangledTypeName: Bool {
+    _descriptor._mangledTypeName.offset != 0
   }
   
   public var mangledTypeName: UnsafePointer<CChar> {
@@ -26,19 +31,19 @@ public struct FieldDescriptor {
     FieldDescriptorKind(rawValue: _descriptor._kind)!
   }
   
-  public var recordSize: UInt16 {
-    _descriptor._recordSize
+  public var recordSize: Int {
+    Int(_descriptor._recordSize)
   }
   
-  public var numFields: UInt32 {
-    _descriptor._numFields
+  public var numFields: Int {
+    Int(_descriptor._numFields)
   }
   
   public var records: [FieldRecord] {
     var result = [FieldRecord]()
     
     for i in 0 ..< numFields {
-      let address = ptr.offset32(of: 4).advanced(by: Int(i) * Int(recordSize))
+      let address = ptr.offset32(of: 4).advanced(by: i * recordSize)
       result.append(FieldRecord(ptr: address))
     }
     
@@ -51,6 +56,14 @@ public struct FieldRecord {
   
   var _record: _FieldRecord {
     ptr.load(as: _FieldRecord.self)
+  }
+  
+  public var flags: FieldRecordFlags {
+    _record._flags
+  }
+  
+  public var hasMangledTypeName: Bool {
+    _record._mangledTypeName.offset != 0
   }
   
   public var mangledTypeName: UnsafePointer<CChar> {
@@ -90,5 +103,15 @@ public enum FieldDescriptorKind: UInt16 {
 }
 
 public struct FieldRecordFlags {
-  let bits: UInt32
+  public let bits: UInt32
+  
+  // IsIndirectCase = 0x1
+  public var isIndirectCase: Bool {
+    (bits & 0x1) == 0x1
+  }
+  
+  // IsVar = 0x2
+  public var isVar: Bool {
+    (bits & 0x2) == 0x2
+  }
 }

@@ -1,8 +1,9 @@
 //
-//  Extensions.swift
+//  Misc.swift
 //  Echo
 //
-//  Created by Alejandro Alonso on 8/14/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 extension _Pointer {
@@ -22,6 +23,10 @@ extension UnsafeRawPointer {
     of offset: Int
   ) -> UnsafeRawPointer {
     advanced(by: MemoryLayout<Int32>.size * offset)
+  }
+  
+  var mutable: UnsafeMutableRawPointer {
+    UnsafeMutableRawPointer(mutating: self)
   }
 }
 
@@ -44,12 +49,12 @@ func getSymbolicMangledNameLength(_ base: UnsafeRawPointer) -> Int {
 }
 
 public func type(
-  of ptr: UnsafePointer<UInt8>,
+  of ptr: UnsafePointer<CChar>,
   context: UnsafeRawPointer,
   genericArgs: UnsafeRawPointer
 ) -> Any.Type? {
   return _getTypeByMangledNameInContext(
-    ptr,
+    UnsafePointer<UInt8>(ptr._rawValue),
     UInt(getSymbolicMangledNameLength(ptr.raw)),
     genericContext: context,
     genericArguments: genericArgs

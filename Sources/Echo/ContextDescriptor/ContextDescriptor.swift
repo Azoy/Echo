@@ -1,8 +1,9 @@
 //
-//  Descriptor.swift
+//  ContextDescriptor.swift
 //  Echo
 //
-//  Created by Alejandro Alonso on 8/14/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 public protocol ContextDescriptor {
@@ -21,15 +22,27 @@ extension ContextDescriptor {
   }
   
   public var parent: ContextDescriptor? {
-    let ptr = self.ptr.offset32(of: 1)
+    let offset = self.ptr.offset32(of: 1)
     
-    guard let _parent = _base._parent.pointee(from: ptr) else {
+    guard let _parent = _base._parent.pointee(from: offset) else {
       return nil
     }
     
+    let ptr = _base._parent.address(from: offset)
+    
     switch _parent._flags.kind {
     case .module:
-      return ModuleDescriptor(ptr: _base._parent.address(from: ptr))
+      return ModuleDescriptor(ptr: ptr)
+    case .extension:
+      return ExtensionDescriptor(ptr: ptr)
+    case .anonymous:
+      return AnonymousDescriptor(ptr: ptr)
+    case .class:
+      return ClassDescriptor(ptr: ptr)
+    case .struct:
+      return StructDescriptor(ptr: ptr)
+    case .enum:
+      return EnumDescriptor(ptr: ptr)
     default:
       return nil
     }
@@ -55,25 +68,25 @@ public enum ContextDescriptorKind: Int {
 
 public struct ContextDescriptorFlags {
   
-  let value: UInt32
+  public let bits: UInt32
   
   public var isGeneric: Bool {
-    value & 0x80 != 0
+    bits & 0x80 == 0x80
   }
   
   public var isUnique: Bool {
-    value & 0x40 != 0
+    bits & 0x40 == 0x40
   }
   
   public var kind: ContextDescriptorKind {
-    return ContextDescriptorKind(rawValue: Int(value) & 0x1F)!
+    return ContextDescriptorKind(rawValue: Int(bits) & 0x1F)!
   }
   
   public var version: UInt8 {
-    UInt8((value >> 0x8) & 0xFF)
+    UInt8((bits >> 0x8) & 0xFF)
   }
   
   var kindSpecificFlags: UInt16 {
-    UInt16((value >> 0xF) & 0xFFFF)
+    UInt16((bits >> 0xF) & 0xFFFF)
   }
 }

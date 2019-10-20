@@ -1,8 +1,9 @@
 //
 //  GenericContextHeader.swift
-//  
+//  Echo
 //
-//  Created by Alejandro Alonso on 10/8/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 public struct TypeGenericContextDescriptorHeader {

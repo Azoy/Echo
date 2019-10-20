@@ -1,16 +1,16 @@
 //
-//  StructDescriptor.swift
+//  ClassDescriptor.swift
 //  Echo
 //
 //  Created by Alejandro Alonso
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct StructDescriptor: TypeContextDescriptor {
+public struct ClassDescriptor: TypeContextDescriptor {
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _StructDescriptor {
-    ptr.load(as: _StructDescriptor.self)
+  var _descriptor: _ClassDescriptor {
+    ptr.load(as: _ClassDescriptor.self)
   }
   
   public var numFields: Int {
@@ -20,21 +20,25 @@ public struct StructDescriptor: TypeContextDescriptor {
   public var fieldOffsetVectorOffset: Int {
     Int(_descriptor._fieldOffsetVectorOffset)
   }
-  
-  public var genericContextHeader: TypeGenericContextDescriptorHeader? {
-    guard flags.isGeneric else { return nil }
-    
-    let address = ptr.offset32(of: 7)
-    return TypeGenericContextDescriptorHeader(ptr: address)
-  }
 }
 
-struct _StructDescriptor {
+struct _ClassDescriptor {
   let _flags: ContextDescriptorFlags
   let _parent: RelativeIndirectablePointer<_Descriptor>
   let _name: RelativeDirectPointer<CChar>
   let _accessor: RelativeDirectPointer<UnsafeRawPointer>
   let _fields: RelativeDirectPointer<_FieldDescriptor>
+  let _superclass: RelativeDirectPointer<CChar>
+  
+  // This is either a uint32 for negative size, or a relative direct pointer
+  // to class metadata bounds if the superclass is resilient.
+  let _negativeSizeOrResilientBounds: UInt32
+  
+  // This is either a uint32 for positive size, or extra class flags
+  // if the superclass is resilient.
+  let _positiveSizeOrExtraFlags: UInt32
+  
+  let _numImmediateMembers: UInt32
   let _numFields: UInt32
   let _fieldOffsetVectorOffset: UInt32
 }

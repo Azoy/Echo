@@ -2,7 +2,8 @@
 //  RelativeIndirectPointer.swift
 //  Echo
 //
-//  Created by Alejandro Alonso on 8/15/19.
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
 struct RelativeIndirectPointer<Pointee>: RelativePointer {
