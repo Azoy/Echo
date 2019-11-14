@@ -10,7 +10,6 @@ import Foundation
 
 public protocol Metadata {
   var ptr: UnsafeRawPointer { get }
-  var vwt: ValueWitnessTable { get }
   var kind: MetadataKind { get }
 }
 
@@ -30,6 +29,30 @@ extension Metadata {
     unsafeBitCast(ptr, to: Any.Type.self)
   }
   
+  public var descriptor: ContextDescriptor? {
+    switch self {
+    case let structMetadata as StructMetadata:
+      return structMetadata.descriptor
+    case let enumMetadata as EnumMetadata:
+      return enumMetadata.descriptor
+    case let classMetadata as ClassMetadata:
+      return classMetadata.descriptor
+    default:
+      return nil
+    }
+  }
+  
+  var genericArgPtr: UnsafeRawPointer? {
+    switch self {
+    case let structMetadata as StructMetadata:
+      return structMetadata.genericArgPtr
+    case let enumMetadata as EnumMetadata:
+      return enumMetadata.genericArgPtr
+    default:
+      return nil
+    }
+  }
+  
   public func allocateBoxForExistential(
     in container: UnsafeMutablePointer<ExistentialContainer>
   ) -> UnsafeRawPointer {
@@ -37,7 +60,7 @@ extension Metadata {
       return container.raw
     }
     
-    let box = allocBox(for: self)
+    let box = swift_allocBox(for: self)
     container.pointee.data.0 = Int(bitPattern: box.heapObj)
     return box.buffer
   }

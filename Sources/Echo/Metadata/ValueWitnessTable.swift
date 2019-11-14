@@ -82,6 +82,10 @@ public struct ValueWitnessTable {
   public let stride: Int
   public let flags: ValueWitnessTableFlags
   public let extraInhabitantCount: UInt32
+  
+  public var alignment: Int {
+    flags.alignment
+  }
 }
 
 public struct ValueWitnessTableFlags {

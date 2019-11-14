@@ -9,20 +9,26 @@
 public struct EnumDescriptor: TypeContextDescriptor {
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _EnumDescriptor {
+  var _enum: _EnumDescriptor {
     ptr.load(as: _EnumDescriptor.self)
   }
   
   public var numPayloadCases: Int {
-    Int(_descriptor._numPayloadCasesAndPayloadSizeOffset) & 0xFFFFFF
+    Int(_enum._numPayloadCasesAndPayloadSizeOffset) & 0xFFFFFF
   }
   
   public var payloadSizeOffset: Int {
-    (Int(_descriptor._numPayloadCasesAndPayloadSizeOffset) & 0xFF000000) >> 24
+    (Int(_enum._numPayloadCasesAndPayloadSizeOffset) & 0xFF000000) >> 24
   }
   
   public var numEmptyCases: Int {
-    Int(_descriptor._numEmptyCases)
+    Int(_enum._numEmptyCases)
+  }
+  
+  public var genericContextHeader: TypeGenericContextDescriptorHeader {
+    return TypeGenericContextDescriptorHeader(
+      ptr: ptr.offset(of: 7, as: Int32.self)
+    )
   }
 }
 

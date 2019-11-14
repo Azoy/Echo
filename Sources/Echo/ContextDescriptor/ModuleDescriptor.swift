@@ -10,13 +10,13 @@ public struct ModuleDescriptor: ContextDescriptor {
 
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _ModuleDescriptor {
+  var _module: _ModuleDescriptor {
     ptr.load(as: _ModuleDescriptor.self)
   }
   
   public var name: String {
-    let address = _descriptor._name.address(from: ptr.offset32(of: 2))
-    return String(cString: UnsafePointer<CChar>(address._rawValue))
+    let address = _module._name.address(from: ptr.offset(of: 2, as: Int32.self))
+    return String(cString: UnsafePointer<CChar>(address))
   }
 }
 

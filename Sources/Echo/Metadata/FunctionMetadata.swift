@@ -26,7 +26,7 @@ public struct FunctionMetadata: Metadata {
   }
   
   public var resultType: Any.Type {
-    unsafeBitCast(_function._resultMetadata, to: Any.Type.self)
+    resultMetadata.type
   }
   
   public var paramMetadata: [Metadata] {
@@ -41,9 +41,7 @@ public struct FunctionMetadata: Metadata {
   }
   
   public var paramTypes: [Any.Type] {
-    paramMetadata.map {
-      unsafeBitCast($0.ptr, to: Any.Type.self)
-    }
+    paramMetadata.map { $0.type }
   }
   
   public var paramFlags: [ParamFlags]? {
@@ -52,7 +50,8 @@ public struct FunctionMetadata: Metadata {
     var result = [ParamFlags]()
     
     for i in 0 ..< flags.numParams {
-      let address = ptr.offset(of: 3 + flags.numParams).offset32(of: i)
+      let address = ptr.offset(of: 3 + flags.numParams)
+                       .offset(of: i, as: Int32.self)
       result.append(address.load(as: ParamFlags.self))
     }
     
@@ -84,13 +83,11 @@ public struct FunctionFlags {
   }
 }
 
-extension FunctionFlags {
-  public enum Convention: UInt8 {
-    case swift = 0
-    case block = 1
-    case thin = 2
-    case c = 3
-  }
+public enum Convention: UInt8 {
+  case swift = 0
+  case block = 1
+  case thin = 2
+  case c = 3
 }
 
 public struct ParamFlags {

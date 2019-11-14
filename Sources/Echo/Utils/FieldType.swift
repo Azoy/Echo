@@ -11,11 +11,11 @@ public struct FieldType {
   public let bits: UInt
   
   public var isIndirect: Bool {
-    bits & 0x1 == 0x1
+    bits & 0x1 != 0
   }
   
   public var isWeak: Bool {
-    bits & 0x2 == 0x2
+    bits & 0x2 != 0
   }
   
   var metadataPtr: UnsafeRawPointer {

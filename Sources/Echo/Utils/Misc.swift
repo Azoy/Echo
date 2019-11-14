@@ -10,6 +10,11 @@ extension _Pointer {
   var raw: UnsafeRawPointer {
     UnsafeRawPointer(_rawValue)
   }
+  
+  // I mean, let's be honest.
+  init<T: _Pointer>(_ ptr: T) {
+    self.init(ptr._rawValue)
+  }
 }
 
 extension UnsafeRawPointer {
@@ -19,10 +24,11 @@ extension UnsafeRawPointer {
     advanced(by: MemoryLayout<Int>.size * offset)
   }
   
-  func offset32(
-    of offset: Int
+  func offset<T>(
+    of offset: Int,
+    as type: T.Type
   ) -> UnsafeRawPointer {
-    advanced(by: MemoryLayout<Int32>.size * offset)
+    advanced(by: MemoryLayout<T>.size * offset)
   }
   
   var mutable: UnsafeMutableRawPointer {
@@ -50,13 +56,17 @@ func getSymbolicMangledNameLength(_ base: UnsafeRawPointer) -> Int {
 
 public func type(
   of ptr: UnsafePointer<CChar>,
-  context: UnsafeRawPointer,
-  genericArgs: UnsafeRawPointer
+  from metadata: Metadata
 ) -> Any.Type? {
+  guard let descriptor = metadata.descriptor,
+        let genericArgPtr = metadata.genericArgPtr else {
+    return nil
+  }
+  
   return _getTypeByMangledNameInContext(
-    UnsafePointer<UInt8>(ptr._rawValue),
+    UnsafePointer<UInt8>(ptr),
     UInt(getSymbolicMangledNameLength(ptr.raw)),
-    genericContext: context,
-    genericArguments: genericArgs
+    genericContext: descriptor.ptr,
+    genericArguments: genericArgPtr
   )
 }

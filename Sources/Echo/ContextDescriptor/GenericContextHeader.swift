@@ -13,20 +13,32 @@ public struct TypeGenericContextDescriptorHeader {
     ptr.load(as: _TypeGenericContextDescriptorHeader.self)
   }
   
-  public var base: GenericContextDescriptorHeader {
-    _header._base
+  public var numParams: Int {
+    Int(_header._base._numParams)
+  }
+  
+  public var numRequirements: Int {
+    Int(_header._base._numRequirements)
+  }
+  
+  public var numKeyArguments: Int {
+    Int(_header._base._numKeyArguments)
+  }
+  
+  public var numExtraArguments: Int {
+    Int(_header._base._numExtraArguments)
   }
 }
 
 struct _TypeGenericContextDescriptorHeader {
   let _instantiationCache: RelativeDirectPointer<Int>
   let _defaultInstantiationPattern: RelativeDirectPointer<Int>
-  let _base: GenericContextDescriptorHeader
+  let _base: _GenericContextDescriptorHeader
 }
 
-public struct GenericContextDescriptorHeader {
-  public let numParams: UInt16
-  public let numRequirements: UInt16
-  public let numKeyArguments: UInt16
-  public let numExtraArguments: UInt16
+struct _GenericContextDescriptorHeader {
+  let _numParams: UInt16
+  let _numRequirements: UInt16
+  let _numKeyArguments: UInt16
+  let _numExtraArguments: UInt16
 }

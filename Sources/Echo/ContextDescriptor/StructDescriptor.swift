@@ -9,23 +9,22 @@
 public struct StructDescriptor: TypeContextDescriptor {
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _StructDescriptor {
+  var _struct: _StructDescriptor {
     ptr.load(as: _StructDescriptor.self)
   }
   
   public var numFields: Int {
-    Int(_descriptor._numFields)
+    Int(_struct._numFields)
   }
   
   public var fieldOffsetVectorOffset: Int {
-    Int(_descriptor._fieldOffsetVectorOffset)
+    Int(_struct._fieldOffsetVectorOffset)
   }
   
-  public var genericContextHeader: TypeGenericContextDescriptorHeader? {
-    guard flags.isGeneric else { return nil }
-    
-    let address = ptr.offset32(of: 7)
-    return TypeGenericContextDescriptorHeader(ptr: address)
+  public var genericContextHeader: TypeGenericContextDescriptorHeader {
+    return TypeGenericContextDescriptorHeader(
+      ptr: ptr.offset(of: 7, as: Int32.self)
+    )
   }
 }
 

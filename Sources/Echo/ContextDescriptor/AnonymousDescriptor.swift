@@ -22,7 +22,7 @@ public struct AnonymousFlags {
   public let bits: UInt16
   
   public var hasMangledName: Bool {
-    bits & 0x1 == 0x1
+    bits & 0x1 != 0
   }
 }
 

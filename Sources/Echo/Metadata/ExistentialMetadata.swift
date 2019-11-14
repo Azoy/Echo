@@ -33,9 +33,7 @@ public struct ExistentialMetadata: Metadata {
   }
   
   public var superclass: Any.Type? {
-    guard let superclassMetadata = superclassMetadata else { return nil }
-    
-    return unsafeBitCast(superclassMetadata.ptr, to: Any.Type.self)
+    return superclassMetadata?.type
   }
   
   public var protocols: [ContextDescriptor] {

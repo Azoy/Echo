@@ -8,27 +8,25 @@
 
 public protocol ContextDescriptor {
   var ptr: UnsafeRawPointer { get }
-  var flags: ContextDescriptorFlags { get }
-  var parent: ContextDescriptor? { get }
 }
 
 extension ContextDescriptor {
-  var _base: _Descriptor {
+  var _descriptor: _Descriptor {
     ptr.load(as: _Descriptor.self)
   }
   
   public var flags: ContextDescriptorFlags {
-    ptr.load(as: ContextDescriptorFlags.self)
+    _descriptor._flags
   }
   
   public var parent: ContextDescriptor? {
-    let offset = self.ptr.offset32(of: 1)
+    let offset = ptr.offset(of: 1, as: Int32.self)
     
-    guard let _parent = _base._parent.pointee(from: offset) else {
+    guard let _parent = _descriptor._parent.pointee(from: offset) else {
       return nil
     }
     
-    let ptr = _base._parent.address(from: offset)
+    let ptr = _descriptor._parent.address(from: offset)
     
     switch _parent._flags.kind {
     case .module:
@@ -71,11 +69,11 @@ public struct ContextDescriptorFlags {
   public let bits: UInt32
   
   public var isGeneric: Bool {
-    bits & 0x80 == 0x80
+    bits & 0x80 != 0
   }
   
   public var isUnique: Bool {
-    bits & 0x40 == 0x40
+    bits & 0x40 != 0
   }
   
   public var kind: ContextDescriptorKind {

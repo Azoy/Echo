@@ -21,12 +21,32 @@ public struct StructMetadata: Metadata {
     StructDescriptor(ptr: _struct._descriptor)
   }
   
+  var genericArgPtr: UnsafeRawPointer {
+    precondition(descriptor.flags.isGeneric)
+    return ptr.offset(of: 2)
+  }
+  
+  public var genericMetadata: [Metadata] {
+    var result = [Metadata]()
+    
+    for i in 0 ..< descriptor.genericContextHeader.numParams {
+      let generic = genericArgPtr.offset(of: i).load(as: UnsafeRawPointer.self)
+      result.append(getMetadata(at: generic))
+    }
+    
+    return result
+  }
+  
+  public var generics: [Any.Type] {
+    genericMetadata.map { $0.type }
+  }
+  
   public var fieldOffsets: [Int] {
     var result = [Int]()
     
     for i in 0 ..< descriptor.numFields {
       let address = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
-                       .offset32(of: i)
+                       .offset(of: i, as: Int32.self)
       result.append(Int(address.load(as: UInt32.self)))
     }
     

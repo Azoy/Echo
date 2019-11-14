@@ -9,16 +9,16 @@
 public struct ClassDescriptor: TypeContextDescriptor {
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _ClassDescriptor {
+  var _class: _ClassDescriptor {
     ptr.load(as: _ClassDescriptor.self)
   }
   
   public var numFields: Int {
-    Int(_descriptor._numFields)
+    Int(_class._numFields)
   }
   
   public var fieldOffsetVectorOffset: Int {
-    Int(_descriptor._fieldOffsetVectorOffset)
+    Int(_class._fieldOffsetVectorOffset)
   }
 }
 

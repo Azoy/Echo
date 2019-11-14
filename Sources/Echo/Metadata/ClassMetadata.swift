@@ -57,7 +57,7 @@ public struct ClassMetadata: Metadata {
     let mask = 0x1
     #endif
     
-    return _class._rodata & mask == mask
+    return _class._rodata & mask != 0
   }
   
   public var descriptor: ClassDescriptor {
@@ -80,15 +80,15 @@ public struct ClassFlags {
   public let bits: UInt32
   
   public var isSwiftPreStableABI: Bool {
-    bits & 0x1 == 0x1
+    bits & 0x1 != 0
   }
   
   public var usesSwiftRefCounting: Bool {
-    bits & 0x2 == 0x2
+    bits & 0x2 != 0
   }
   
   public var hasCustomObjCName: Bool {
-    bits & 0x4 == 0x4
+    bits & 0x4 != 0
   }
 }
 

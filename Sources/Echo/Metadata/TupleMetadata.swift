@@ -30,7 +30,7 @@ public struct TupleMetadata: Metadata {
     
     for i in 0 ..< numElements {
       let elementSize = MemoryLayout<_TupleElement>.size
-      let address = ptr.offset(of: 3).advanced(by: i * elementSize)
+      let address = ptr.offset(of: 3) + (i * elementSize)
       result.append(Element(ptr: address))
     }
     
@@ -46,12 +46,12 @@ extension TupleMetadata {
       ptr.load(as: _TupleElement.self)
     }
     
-    public var type: Any.Type {
-      unsafeBitCast(_element._metadata, to: Any.Type.self)
-    }
-    
     public var metadata: Metadata {
       getMetadata(at: _element._metadata)
+    }
+    
+    public var type: Any.Type {
+      metadata.type
     }
     
     public var offset: Int {

@@ -15,7 +15,7 @@ public struct ExtensionDescriptor: ContextDescriptor {
   
   public var extendedContext: UnsafePointer<CChar> {
     let address = _extension._extendedContext.address(from: ptr)
-    return UnsafePointer<CChar>(address._rawValue)
+    return UnsafePointer<CChar>(address)
   }
 }
 

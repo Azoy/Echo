@@ -9,41 +9,43 @@
 public struct FieldDescriptor {
   public let ptr: UnsafeRawPointer
   
-  var _descriptor: _FieldDescriptor {
+  var _fields: _FieldDescriptor {
     ptr.load(as: _FieldDescriptor.self)
   }
   
   public var hasMangledTypeName: Bool {
-    _descriptor._mangledTypeName.offset != 0
+    _fields._mangledTypeName.offset != 0
   }
   
   public var mangledTypeName: UnsafePointer<CChar> {
-    let address = _descriptor._mangledTypeName.address(from: ptr)
-    return UnsafePointer<CChar>(address._rawValue)
+    let address = _fields._mangledTypeName.address(from: ptr)
+    return UnsafePointer<CChar>(address)
   }
   
   public var superclass: UnsafePointer<CChar> {
-    let address = _descriptor._superclass.address(from: ptr.offset32(of: 1))
-    return UnsafePointer<CChar>(address._rawValue)
+    let offset = ptr.offset(of: 1, as: Int32.self)
+    let address = _fields._superclass.address(from: offset)
+    return UnsafePointer<CChar>(address)
   }
   
   public var kind: FieldDescriptorKind {
-    FieldDescriptorKind(rawValue: _descriptor._kind)!
+    FieldDescriptorKind(rawValue: _fields._kind)!
   }
   
   public var recordSize: Int {
-    Int(_descriptor._recordSize)
+    Int(_fields._recordSize)
   }
   
   public var numFields: Int {
-    Int(_descriptor._numFields)
+    Int(_fields._numFields)
   }
   
   public var records: [FieldRecord] {
     var result = [FieldRecord]()
     
     for i in 0 ..< numFields {
-      let address = ptr.offset32(of: 4).advanced(by: i * recordSize)
+      let address = ptr.offset(of: 4, as: Int32.self)
+                       .offset(of: i, as: _FieldRecord.self)
       result.append(FieldRecord(ptr: address))
     }
     
@@ -67,28 +69,16 @@ public struct FieldRecord {
   }
   
   public var mangledTypeName: UnsafePointer<CChar> {
-    let address = _record._mangledTypeName.address(from: ptr.offset32(of: 1))
-    return UnsafePointer<CChar>(address._rawValue)
+    let offset = ptr.offset(of: 1, as: Int32.self)
+    let address = _record._mangledTypeName.address(from: offset)
+    return UnsafePointer<CChar>(address)
   }
   
   public var name: String {
-    let address = _record._fieldName.address(from: ptr.offset32(of: 2))
-    return String(cString: UnsafePointer<CChar>(address._rawValue))
+    let offset = ptr.offset(of: 2, as: Int32.self)
+    let address = _record._fieldName.address(from: offset)
+    return String(cString: UnsafePointer<CChar>(address))
   }
-}
-
-struct _FieldDescriptor {
-  let _mangledTypeName: RelativeDirectPointer<CChar>
-  let _superclass: RelativeDirectPointer<CChar>
-  let _kind: UInt16
-  let _recordSize: UInt16
-  let _numFields: UInt32
-}
-
-struct _FieldRecord {
-  let _flags: FieldRecordFlags
-  let _mangledTypeName: RelativeDirectPointer<CChar>
-  let _fieldName: RelativeDirectPointer<CChar>
 }
 
 public enum FieldDescriptorKind: UInt16 {
@@ -107,11 +97,25 @@ public struct FieldRecordFlags {
   
   // IsIndirectCase = 0x1
   public var isIndirectCase: Bool {
-    (bits & 0x1) == 0x1
+    bits & 0x1 != 0
   }
   
   // IsVar = 0x2
   public var isVar: Bool {
-    (bits & 0x2) == 0x2
+    bits & 0x2 != 0
   }
+}
+
+struct _FieldDescriptor {
+  let _mangledTypeName: RelativeDirectPointer<CChar>
+  let _superclass: RelativeDirectPointer<CChar>
+  let _kind: UInt16
+  let _recordSize: UInt16
+  let _numFields: UInt32
+}
+
+struct _FieldRecord {
+  let _flags: FieldRecordFlags
+  let _mangledTypeName: RelativeDirectPointer<CChar>
+  let _fieldName: RelativeDirectPointer<CChar>
 }

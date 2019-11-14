@@ -22,7 +22,7 @@ public struct MetatypeMetadata: Metadata {
   }
   
   public var instanceType: Any.Type {
-    unsafeBitCast(_metatype._instanceMetadata, to: Any.Type.self)
+    instanceMetadata.type
   }
 }
 

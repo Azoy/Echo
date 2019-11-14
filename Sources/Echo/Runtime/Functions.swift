@@ -14,17 +14,17 @@ public struct BoxPair {
 }
 
 @_silgen_name("swift_allocBox")
-func _allocBox(for metadata: UnsafeRawPointer) -> BoxPair
+func _swift_allocBox(for metadata: UnsafeRawPointer) -> BoxPair
 
-public func allocBox(for metadata: Metadata) -> BoxPair {
-  _allocBox(for: metadata.ptr)
+public func swift_allocBox(for metadata: Metadata) -> BoxPair {
+  _swift_allocBox(for: metadata.ptr)
 }
 
-public func release(_ heapObj: UnsafePointer<HeapObject>) {
+public func swift_release(_ heapObj: UnsafePointer<HeapObject>) {
   swift_release(heapObj.raw.mutable)
 }
 
-public func projectBox(
+public func swift_projectBox(
   for heapObj: UnsafePointer<HeapObject>
 ) -> UnsafeRawPointer {
   swift_projectBox(heapObj.raw.mutable)!.raw
@@ -36,7 +36,7 @@ struct TypeNamePair {
 }
 
 @_silgen_name("swift_getTypeName")
-func _getTypeName(
+func _swift_getTypeName(
   for metadata: UnsafeRawPointer,
   qualified: Bool
 ) -> TypeNamePair
@@ -45,5 +45,10 @@ public func getTypeName(
   for metadata: Metadata,
   qualified: Bool
 ) -> String {
-  String(cString: _getTypeName(for: metadata.ptr, qualified: qualified).data)
+  String(
+    cString: _swift_getTypeName(
+      for: metadata.ptr,
+      qualified: qualified
+    ).data
+  )
 }

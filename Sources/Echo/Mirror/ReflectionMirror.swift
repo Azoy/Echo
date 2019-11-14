@@ -73,9 +73,7 @@ func getStructFields(
     let label = field.name
     let type = Echo.type(
       of: field.mangledTypeName,
-      context: metadata.descriptor.ptr,
-      // FIXME: I need to expose this sometime...
-      genericArgs: metadata.ptr.advanced(by: MemoryLayout<Int>.size * 2)
+      from: metadata
     )!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
@@ -85,7 +83,7 @@ func getStructFields(
     }
     _ = fieldMetadata.vwt.initializeWithCopy(
       buffer,
-      opaqueValue.advanced(by: offset),
+      opaqueValue + offset,
       fieldMetadata.ptr
     )
     
@@ -123,7 +121,7 @@ func getTupleFields(
     }
     _ = elt.metadata.vwt.initializeWithCopy(
       buffer,
-      opaqueValue.advanced(by: elt.offset),
+      opaqueValue + elt.offset,
       elt.metadata.ptr
     )
     
@@ -151,9 +149,7 @@ func getEnumFields(
   let name = field.name
   let type = Echo.type(
     of: field.mangledTypeName,
-    context: metadata.descriptor.ptr,
-    // FIXME: expose this
-    genericArgs: metadata.ptr.offset(of: 2)
+    from: metadata
   )
   
   // If we have no payload case, or if the enum is not indirect, we're done.
@@ -164,7 +160,7 @@ func getEnumFields(
   let nativeObject = reflect(_typeByName("Bo")!)
   let payloadMetadata = field.flags.isIndirectCase ?
                           nativeObject : reflect(type!)
-  let pair = allocBox(for: payloadMetadata)
+  let pair = swift_allocBox(for: payloadMetadata)
   
   metadata.enumVwt.destructiveProjectEnumData(opaqueValue, metadata.ptr)
   _ = payloadMetadata.vwt.initializeWithCopy(
@@ -177,10 +173,8 @@ func getEnumFields(
   opaqueValue = pair.buffer
   
   if field.flags.isIndirectCase {
-    let owner = UnsafePointer<UnsafePointer<HeapObject>>(
-      opaqueValue._rawValue
-    ).pointee
-    opaqueValue = projectBox(for: owner)
+    let owner = UnsafePointer<UnsafePointer<HeapObject>>(opaqueValue).pointee
+    opaqueValue = swift_projectBox(for: owner)
   }
   
   var value = ExistentialContainer(type: payloadMetadata)
@@ -193,7 +187,7 @@ func getEnumFields(
     payloadMetadata.ptr
   )
   
-  release(pair.heapObj)
+  swift_release(pair.heapObj)
   
   result.append((label: name, value: unsafeBitCast(value, to: Any.self)))
   
@@ -216,9 +210,7 @@ func getClassFields(
     let label = field.name
     let type = Echo.type(
       of: field.mangledTypeName,
-      context: metadata.descriptor.ptr,
-      // FIXME: I need to expose this sometime...
-      genericArgs: metadata.ptr.advanced(by: MemoryLayout<Int>.size * 2)
+      from: metadata
     )!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
@@ -229,7 +221,7 @@ func getClassFields(
     withUnsafePointer(to: instance) {
       _ = fieldMetadata.vwt.initializeWithCopy(
         buffer,
-        UnsafePointer<UnsafeRawPointer>($0.raw._rawValue).pointee.advanced(by: offset),
+        UnsafePointer<UnsafeRawPointer>($0).pointee + offset,
         fieldMetadata.ptr
       )
     }

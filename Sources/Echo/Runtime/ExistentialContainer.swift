@@ -16,7 +16,7 @@ public struct ExistentialContainer {
   }
   
   public var type: Any.Type {
-    unsafeBitCast(metadataPtr, to: Any.Type.self)
+    metadata.type
   }
   
   public init(type: Metadata) {
@@ -38,8 +38,9 @@ public struct ExistentialContainer {
     let heapObjSize = UInt(MemoryLayout<HeapObject>.size)
     let byteOffset = (heapObjSize + alignMask) & ~alignMask
     let bytePtr = withUnsafePointer(to: &self) {
-      UnsafePointer<UnsafePointer<HeapObject>>($0.raw._rawValue).pointee.raw
+      UnsafePointer<UnsafePointer<HeapObject>>($0).pointee.raw
     }
-    return bytePtr.advanced(by: Int(byteOffset))
+    
+    return bytePtr + Int(byteOffset)
   }
 }
