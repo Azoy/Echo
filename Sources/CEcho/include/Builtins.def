@@ -1,0 +1,38 @@
+//
+//  Builtins.def
+//
+//
+//  Created by Alejandro Alonso
+//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//
+
+#ifndef BUILTIN
+#define BUILTIN(NAME, SYMBOL)
+#endif
+
+BUILTIN(Int1, Bi1_)
+BUILTIN(Int7, Bi7_)
+BUILTIN(Int8, Bi8_)
+BUILTIN(Int16, Bi16_)
+BUILTIN(Int32, Bi32_)
+BUILTIN(Int64, Bi64_)
+BUILTIN(Int128, Bi128_)
+BUILTIN(Int256, Bi256_)
+BUILTIN(Int512, Bi512_)
+
+BUILTIN(Word, Bw)
+
+BUILTIN(FPIEE16, Bf16_)
+BUILTIN(FPIEE32, Bf32_)
+BUILTIN(FPIEE64, Bf64_)
+BUILTIN(FPIEE80, Bf80_)
+BUILTIN(FPIEE128, Bf128_)
+
+BUILTIN(NativeObject, Bo)
+BUILTIN(BridgeObject, Bb)
+BUILTIN(RawPointer, Bp)
+BUILTIN(UnsafeValueBuffer, BB)
+
+BUILTIN(UnknownObject, BO)
+
+#undef BUILTIN

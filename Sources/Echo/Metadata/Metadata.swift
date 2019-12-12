@@ -10,47 +10,26 @@ import Foundation
 
 public protocol Metadata {
   var ptr: UnsafeRawPointer { get }
-  var kind: MetadataKind { get }
 }
 
 extension Metadata {
-  public var vwt: ValueWitnessTable {
+  public var type: Any.Type {
+    unsafeBitCast(ptr, to: Any.Type.self)
+  }
+  
+  var vwt: ValueWitnessTable {
     let address = ptr.offset(of: -1)
     return address.load(as: UnsafePointer<ValueWitnessTable>.self).pointee
   }
   
   public var enumVwt: EnumValueWitnessTable {
-    assert(kind == .enum || kind == .optional)
+    precondition(kind == .enum || kind == .optional)
     let address = ptr.offset(of: -1)
     return address.load(as: UnsafePointer<EnumValueWitnessTable>.self).pointee
   }
   
-  public var type: Any.Type {
-    unsafeBitCast(ptr, to: Any.Type.self)
-  }
-  
-  public var descriptor: ContextDescriptor? {
-    switch self {
-    case let structMetadata as StructMetadata:
-      return structMetadata.descriptor
-    case let enumMetadata as EnumMetadata:
-      return enumMetadata.descriptor
-    case let classMetadata as ClassMetadata:
-      return classMetadata.descriptor
-    default:
-      return nil
-    }
-  }
-  
-  var genericArgPtr: UnsafeRawPointer? {
-    switch self {
-    case let structMetadata as StructMetadata:
-      return structMetadata.genericArgPtr
-    case let enumMetadata as EnumMetadata:
-      return enumMetadata.genericArgPtr
-    default:
-      return nil
-    }
+  public var kind: MetadataKind {
+    MetadataKind(rawValue: ptr.load(as: Int.self))!
   }
   
   public func allocateBoxForExistential(

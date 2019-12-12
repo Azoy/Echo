@@ -6,7 +6,7 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct Mirror {
+public struct EchoMirror {
   public let subjectType: Any.Type
   
   public var children: Swift.Mirror.Children

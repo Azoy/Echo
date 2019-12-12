@@ -17,8 +17,8 @@
 // accessing a relative pointer's value, but it doesn't require the var dance.
 // I might reconsider this decision down the road, but for now this is what I'm
 // going with. At the end of the day, I don't want to require the user to be
-// forced to write `var metadata = reflect(type)` when they very well aren't
-// mutating the metadata.
+// forced to write `var metadata = reflect(type)` when they could also be
+// making this a let constant.
 protocol RelativePointer {
   associatedtype Pointee
   

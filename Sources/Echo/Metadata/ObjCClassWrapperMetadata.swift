@@ -6,27 +6,21 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct ObjCClassWrapperMetadata: Metadata {
+public struct ObjCClassWrapperMetadata: Metadata, LayoutWrapper {
+  typealias Layout = _ObjCClassWrapperMetadata
+  
   public let ptr: UnsafeRawPointer
   
-  var _wrapper: _ObjCClassWrapperMetadata {
-    ptr.load(as: _ObjCClassWrapperMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .objcClassWrapper
-  }
-  
   public var classMetadata: ClassMetadata {
-    ClassMetadata(ptr: _wrapper._classMetadata)
+    ClassMetadata(ptr: unsafeBitCast(classType, to: UnsafeRawPointer.self))
   }
   
   public var classType: Any.Type {
-    classMetadata.type
+    layout._classMetadata
   }
 }
 
 struct _ObjCClassWrapperMetadata {
   let _kind: Int
-  let _classMetadata: UnsafeRawPointer
+  let _classMetadata: Any.Type
 }

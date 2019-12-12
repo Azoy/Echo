@@ -6,27 +6,21 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct FunctionMetadata: Metadata {
+public struct FunctionMetadata: Metadata, LayoutWrapper {
+  typealias Layout = _FunctionMetadata
+  
   public let ptr: UnsafeRawPointer
-  
-  var _function: _FunctionMetadata {
-    ptr.load(as: _FunctionMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .function
-  }
  
-  public var flags: FunctionFlags {
-    _function._flags
+  public var flags: Flags {
+    layout._flags
   }
   
   public var resultMetadata: Metadata {
-    getMetadata(at: _function._resultMetadata)
+    reflect(resultType)
   }
   
   public var resultType: Any.Type {
-    resultMetadata.type
+    layout._result
   }
   
   public var paramMetadata: [Metadata] {
@@ -59,31 +53,33 @@ public struct FunctionMetadata: Metadata {
   }
 }
 
-public struct FunctionFlags {
-  public let bits: Int
-  
-  public var numParams: Int {
-    bits & 0xFFFF
-  }
-  
-  public var convention: Convention {
-    Convention(rawValue: UInt8((bits & 0xFF0000) >> 16))!
-  }
-  
-  public var `throws`: Bool {
-    bits & 0x1000000 != 0
-  }
-  
-  public var hasParamFlags: Bool {
-    bits & 0x2000000 != 0
-  }
-  
-  public var isEscaping: Bool {
-    bits & 0x4000000 != 0
+extension FunctionMetadata {
+  public struct Flags {
+    public let bits: Int
+    
+    public var numParams: Int {
+      bits & 0xFFFF
+    }
+    
+    public var convention: FunctionConvention {
+      FunctionConvention(rawValue: UInt8((bits & 0xFF0000) >> 16))!
+    }
+    
+    public var `throws`: Bool {
+      bits & 0x1000000 != 0
+    }
+    
+    public var hasParamFlags: Bool {
+      bits & 0x2000000 != 0
+    }
+    
+    public var isEscaping: Bool {
+      bits & 0x4000000 != 0
+    }
   }
 }
 
-public enum Convention: UInt8 {
+public enum FunctionConvention: UInt8 {
   case swift = 0
   case block = 1
   case thin = 2
@@ -115,6 +111,6 @@ public enum ValueOwnership: UInt8 {
 
 struct _FunctionMetadata {
   let _kind: Int
-  let _flags: FunctionFlags
-  let _resultMetadata: UnsafeRawPointer
+  let _flags: FunctionMetadata.Flags
+  let _result: Any.Type
 }

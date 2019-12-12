@@ -7,6 +7,6 @@
 //
 
 public struct HeapObject {
-  let _metadata: UnsafeRawPointer
-  let _refCount: UInt64
+  public let _metadata: Any.Type
+  public let _refCount: UInt64
 }

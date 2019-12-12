@@ -9,22 +9,18 @@
 // typealias Any = ExistentialContainer :)
 public struct ExistentialContainer {
   public var data: (Int, Int, Int) = (0, 0, 0)
-  public var metadataPtr: UnsafeRawPointer
+  public var type: Any.Type
   
   public var metadata: Metadata {
-    getMetadata(at: metadataPtr)
-  }
-  
-  public var type: Any.Type {
-    metadata.type
-  }
-  
-  public init(type: Metadata) {
-    self.metadataPtr = type.ptr
+    reflect(type)
   }
   
   public init(type: Any.Type) {
-    self.metadataPtr = unsafeBitCast(type, to: UnsafeRawPointer.self)
+    self.type = type
+  }
+  
+  public init(metadata: Metadata) {
+    self.type = metadata.type
   }
   
   public mutating func projectValue() -> UnsafeRawPointer {

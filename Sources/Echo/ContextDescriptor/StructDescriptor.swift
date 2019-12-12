@@ -6,25 +6,17 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct StructDescriptor: TypeContextDescriptor {
+public struct StructDescriptor: TypeContextDescriptor, LayoutWrapper {
+  typealias Layout = _StructDescriptor
+  
   public let ptr: UnsafeRawPointer
   
-  var _struct: _StructDescriptor {
-    ptr.load(as: _StructDescriptor.self)
-  }
-  
   public var numFields: Int {
-    Int(_struct._numFields)
+    Int(layout._numFields)
   }
   
   public var fieldOffsetVectorOffset: Int {
-    Int(_struct._fieldOffsetVectorOffset)
-  }
-  
-  public var genericContextHeader: TypeGenericContextDescriptorHeader {
-    return TypeGenericContextDescriptorHeader(
-      ptr: ptr.offset(of: 7, as: Int32.self)
-    )
+    Int(layout._fieldOffsetVectorOffset)
   }
 }
 

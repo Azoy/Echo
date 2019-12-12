@@ -6,19 +6,17 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct ClassDescriptor: TypeContextDescriptor {
+public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
+  typealias Layout = _ClassDescriptor
+  
   public let ptr: UnsafeRawPointer
   
-  var _class: _ClassDescriptor {
-    ptr.load(as: _ClassDescriptor.self)
-  }
-  
   public var numFields: Int {
-    Int(_class._numFields)
+    Int(layout._numFields)
   }
   
   public var fieldOffsetVectorOffset: Int {
-    Int(_class._fieldOffsetVectorOffset)
+    Int(layout._fieldOffsetVectorOffset)
   }
 }
 

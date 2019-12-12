@@ -29,28 +29,51 @@ extension ContextDescriptor {
     let ptr = _descriptor._parent.address(from: offset)
     
     switch _parent._flags.kind {
-    case .module:
-      return ModuleDescriptor(ptr: ptr)
-    case .extension:
-      return ExtensionDescriptor(ptr: ptr)
     case .anonymous:
       return AnonymousDescriptor(ptr: ptr)
     case .class:
       return ClassDescriptor(ptr: ptr)
-    case .struct:
-      return StructDescriptor(ptr: ptr)
     case .enum:
       return EnumDescriptor(ptr: ptr)
+    case .extension:
+      return ExtensionDescriptor(ptr: ptr)
+    case .module:
+      return ModuleDescriptor(ptr: ptr)
+    case .protocol:
+      return ProtocolDescriptor(ptr: ptr)
+    case .struct:
+      return StructDescriptor(ptr: ptr)
     default:
       return nil
     }
   }
-}
-
-// This is used as a base type that can be bit casted to.
-struct _Descriptor {
-  let _flags: ContextDescriptorFlags
-  let _parent: RelativeIndirectablePointer<_Descriptor>
+  
+  var genericContextOffset: Int {
+    switch self {
+    case is AnonymousDescriptor:
+      return MemoryLayout<_AnonymousDescriptor>.size
+    case is ClassDescriptor:
+      return MemoryLayout<_ClassDescriptor>.size
+    case is EnumDescriptor:
+      return MemoryLayout<_EnumDescriptor>.size
+    case is ExtensionDescriptor:
+      return MemoryLayout<_ExtensionDescriptor>.size
+    case is StructDescriptor:
+      return MemoryLayout<_StructDescriptor>.size
+    default:
+      fatalError()
+    }
+  }
+  
+  public var genericContext: GenericContext? {
+    guard flags.isGeneric else { return nil }
+    
+    if let type = self as? TypeContextDescriptor {
+      return type.typeGenericContext.baseContext
+    }
+    
+    return GenericContext(ptr: ptr + genericContextOffset)
+  }
 }
 
 public enum ContextDescriptorKind: Int {
@@ -87,4 +110,10 @@ public struct ContextDescriptorFlags {
   var kindSpecificFlags: UInt16 {
     UInt16((bits >> 0xF) & 0xFFFF)
   }
+}
+
+// This is used as a base type that can be bit casted to.
+struct _Descriptor {
+  let _flags: ContextDescriptorFlags
+  let _parent: RelativeIndirectablePointer<_Descriptor>
 }

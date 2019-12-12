@@ -17,3 +17,9 @@ struct RelativeDirectPointer<Pointee>: RelativePointer {
     return address(from: ptr).load(as: T.self)
   }
 }
+
+/*
+extension UnsafeRawPointer {
+  static func 
+}
+*/

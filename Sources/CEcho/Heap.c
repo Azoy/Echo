@@ -1,9 +1,9 @@
 //
-//  swift_runtime_funcs.c
+//  Heap.c
 //  
 //
 //  Created by Alejandro Alonso
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-#include "include/swift_runtime_funcs.h"
+#include "include/Heap.h"

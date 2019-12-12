@@ -6,14 +6,16 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-func reflectInstance(_ instance: Any) -> Echo.Mirror {
+import Echo
+
+func reflectInstance(_ instance: Any) -> EchoMirror {
   let subjectType = type(of: instance)
   let metadata = reflect(subjectType)
   
   let children = getChildren(of: instance, with: metadata)
   let displayStyle = getDisplayStyle(of: metadata)
   
-  return Echo.Mirror(
+  return EchoMirror(
     subjectType: subjectType,
     children: Swift.Mirror.Children(children),
     displayStyle: displayStyle
@@ -49,10 +51,8 @@ func getChildren(
   case let classMetadata as ClassMetadata:
     return getClassFields(from: instance, with: classMetadata)
   default:
-    break
+    return []
   }
-  
-  return []
 }
 
 func getStructFields(
@@ -71,21 +71,12 @@ func getStructFields(
   for i in 0 ..< metadata.descriptor.numFields {
     let field = metadata.descriptor.fields.records[i]
     let label = field.name
-    let type = Echo.type(
-      of: field.mangledTypeName,
-      from: metadata
-    )!
+    let type = metadata.type(of: field.mangledTypeName)!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
-    var value = ExistentialContainer(type: fieldMetadata)
-    let buffer = withUnsafeMutablePointer(to: &value) {
-      fieldMetadata.allocateBoxForExistential(in: $0)
-    }
-    _ = fieldMetadata.vwt.initializeWithCopy(
-      buffer,
-      opaqueValue + offset,
-      fieldMetadata.ptr
-    )
+    var value = ExistentialContainer(type: type)
+    let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
+    fieldMetadata.vw_initializeWithCopy(buffer, opaqueValue + offset)
     
     result.append((label: label, value: unsafeBitCast(value, to: Any.self)))
   }
@@ -102,28 +93,16 @@ func getTupleFields(
   
   var result = [Swift.Mirror.Child]()
   
-  let labels = metadata.labels.split(
-    separator: " ",
-    maxSplits: metadata.numElements,
-    omittingEmptySubsequences: false
-  )
-  
   for i in 0 ..< metadata.numElements {
-    var label = String(labels[i])
+    var label = String(metadata.labels[i])
     if label.isEmpty {
       label = ".\(i)"
     }
     
     let elt = metadata.elements[i]
-    var value = ExistentialContainer(type: elt.metadata)
-    let buffer = withUnsafeMutablePointer(to: &value) {
-      elt.metadata.allocateBoxForExistential(in: $0)
-    }
-    _ = elt.metadata.vwt.initializeWithCopy(
-      buffer,
-      opaqueValue + elt.offset,
-      elt.metadata.ptr
-    )
+    var value = ExistentialContainer(type: elt.type)
+    let buffer = elt.metadata.allocateBoxForExistential(in: &value)
+    elt.metadata.vw_initializeWithCopy(buffer, opaqueValue + elt.offset)
     
     result.append((label: label, value: unsafeBitCast(value, to: Any.self)))
   }
@@ -147,45 +126,34 @@ func getEnumFields(
   let tag = metadata.enumVwt.getEnumTag(opaqueValue, metadata.ptr)
   let field = metadata.descriptor.fields.records[Int(tag)]
   let name = field.name
-  let type = Echo.type(
-    of: field.mangledTypeName,
-    from: metadata
-  )
+  let type = metadata.type(of: field.mangledTypeName)
   
   // If we have no payload case, or if the enum is not indirect, we're done.
   guard type != nil || field.flags.isIndirectCase else {
     return result
   }
   
-  let nativeObject = reflect(_typeByName("Bo")!)
+  let nativeObject = KnownMetadata.Builtin.NativeObject
   let payloadMetadata = field.flags.isIndirectCase ?
                           nativeObject : reflect(type!)
   let pair = swift_allocBox(for: payloadMetadata)
   
   metadata.enumVwt.destructiveProjectEnumData(opaqueValue, metadata.ptr)
-  _ = payloadMetadata.vwt.initializeWithCopy(
-    pair.buffer,
-    opaqueValue,
-    payloadMetadata.ptr
-  )
+  payloadMetadata.vw_initializeWithCopy(pair.buffer, opaqueValue)
   metadata.enumVwt.destructiveInjectEnumTag(opaqueValue, tag, metadata.ptr)
   
   opaqueValue = pair.buffer
   
   if field.flags.isIndirectCase {
-    let owner = UnsafePointer<UnsafePointer<HeapObject>>(opaqueValue).pointee
+    let owner = UnsafePointer<UnsafePointer<HeapObject>>(
+      opaqueValue._rawValue
+    ).pointee
     opaqueValue = swift_projectBox(for: owner)
   }
   
-  var value = ExistentialContainer(type: payloadMetadata)
-  let buffer = withUnsafeMutablePointer(to: &value) {
-    payloadMetadata.allocateBoxForExistential(in: $0)
-  }
-  _ = payloadMetadata.vwt.initializeWithCopy(
-    buffer,
-    opaqueValue,
-    payloadMetadata.ptr
-  )
+  var value = ExistentialContainer(metadata: payloadMetadata)
+  let buffer = payloadMetadata.allocateBoxForExistential(in: &value)
+  payloadMetadata.vw_initializeWithCopy(buffer, opaqueValue)
   
   swift_release(pair.heapObj)
   
@@ -208,21 +176,15 @@ func getClassFields(
   for i in 0 ..< metadata.descriptor.numFields {
     let field = metadata.descriptor.fields.records[i]
     let label = field.name
-    let type = Echo.type(
-      of: field.mangledTypeName,
-      from: metadata
-    )!
+    let type = metadata.type(of: field.mangledTypeName)!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
-    var value = ExistentialContainer(type: fieldMetadata)
-    let buffer = withUnsafeMutablePointer(to: &value) {
-      fieldMetadata.allocateBoxForExistential(in: $0)
-    }
+    var value = ExistentialContainer(type: type)
+    let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
     withUnsafePointer(to: instance) {
-      _ = fieldMetadata.vwt.initializeWithCopy(
+      fieldMetadata.vw_initializeWithCopy(
         buffer,
-        UnsafePointer<UnsafeRawPointer>($0).pointee + offset,
-        fieldMetadata.ptr
+        UnsafePointer<UnsafeRawPointer>($0._rawValue).pointee + offset
       )
     }
     

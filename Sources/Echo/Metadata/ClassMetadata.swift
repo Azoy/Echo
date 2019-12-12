@@ -6,17 +6,13 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-import Foundation
-
-public struct ClassMetadata: Metadata {
+public struct ClassMetadata: TypeMetadata, LayoutWrapper {
+  typealias Layout = _ClassMetadata
+  
   public let ptr: UnsafeRawPointer
   
-  var _class: _ClassMetadata {
-    ptr.load(as: _ClassMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .class
+  public var descriptor: ClassDescriptor {
+    layout._descriptor
   }
   
   public var isaPointer: UnsafeRawPointer? {
@@ -29,21 +25,24 @@ public struct ClassMetadata: Metadata {
   }
   
   public var superclassMetadata: ClassMetadata? {
-    guard _class._superclassMetadata != nil else {
+    guard superclassType != nil else {
       return nil
     }
     
-    return ClassMetadata(ptr: _class._superclassMetadata!)
+    return ClassMetadata(
+      ptr: unsafeBitCast(superclassType!, to: UnsafeRawPointer.self)
+    )
   }
   
   public var superclassType: Any.Type? {
-    superclassMetadata?.type
+    layout._superclass
   }
   
-  public var classFlags: ClassFlags {
-    _class._flags
+  public var classFlags: Flags {
+    layout._flags
   }
   
+  // FIXME: This isn't quite right yet...
   public var isSwiftClass: Bool {
     #if canImport(Darwin)
     // Xcode uses this and older runtimes do too
@@ -57,11 +56,7 @@ public struct ClassMetadata: Metadata {
     let mask = 0x1
     #endif
     
-    return _class._rodata & mask != 0
-  }
-  
-  public var descriptor: ClassDescriptor {
-    ClassDescriptor(ptr: _class._descriptor)
+    return layout._rodata & mask != 0
   }
   
   public var fieldOffsets: [Int] {
@@ -76,33 +71,35 @@ public struct ClassMetadata: Metadata {
   }
 }
 
-public struct ClassFlags {
-  public let bits: UInt32
-  
-  public var isSwiftPreStableABI: Bool {
-    bits & 0x1 != 0
-  }
-  
-  public var usesSwiftRefCounting: Bool {
-    bits & 0x2 != 0
-  }
-  
-  public var hasCustomObjCName: Bool {
-    bits & 0x4 != 0
+extension ClassMetadata {
+  public struct Flags {
+    public let bits: UInt32
+    
+    public var isSwiftPreStableABI: Bool {
+      bits & 0x1 != 0
+    }
+    
+    public var usesSwiftRefCounting: Bool {
+      bits & 0x2 != 0
+    }
+    
+    public var hasCustomObjCName: Bool {
+      bits & 0x4 != 0
+    }
   }
 }
 
 struct _ClassMetadata {
   let _kind: Int
-  let _superclassMetadata: UnsafeRawPointer?
+  let _superclass: Any.Type?
   let _reserved: (Int, Int)
   let _rodata: Int
-  let _flags: ClassFlags
+  let _flags: ClassMetadata.Flags
   let _instanceAddressPoint: UInt32
   let _instanceSize: UInt32
   let _instanceAlignMask: UInt16
   let _runtimeReserved: UInt16
   let _classSize: UInt32
   let _classAddressPoint: UInt32
-  let _descriptor: UnsafeRawPointer
+  let _descriptor: ClassDescriptor
 }

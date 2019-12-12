@@ -6,29 +6,21 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct EnumDescriptor: TypeContextDescriptor {
+public struct EnumDescriptor: TypeContextDescriptor, LayoutWrapper {
+  typealias Layout = _EnumDescriptor
+  
   public let ptr: UnsafeRawPointer
   
-  var _enum: _EnumDescriptor {
-    ptr.load(as: _EnumDescriptor.self)
-  }
-  
   public var numPayloadCases: Int {
-    Int(_enum._numPayloadCasesAndPayloadSizeOffset) & 0xFFFFFF
+    Int(layout._numPayloadCasesAndPayloadSizeOffset) & 0xFFFFFF
   }
   
   public var payloadSizeOffset: Int {
-    (Int(_enum._numPayloadCasesAndPayloadSizeOffset) & 0xFF000000) >> 24
+    (Int(layout._numPayloadCasesAndPayloadSizeOffset) & 0xFF000000) >> 24
   }
   
   public var numEmptyCases: Int {
-    Int(_enum._numEmptyCases)
-  }
-  
-  public var genericContextHeader: TypeGenericContextDescriptorHeader {
-    return TypeGenericContextDescriptorHeader(
-      ptr: ptr.offset(of: 7, as: Int32.self)
-    )
+    Int(layout._numEmptyCases)
   }
 }
 

@@ -8,8 +8,4 @@
 
 public struct OpaqueMetadata: Metadata {
   public let ptr: UnsafeRawPointer
-  
-  public var kind: MetadataKind {
-    .opaque
-  }
 }

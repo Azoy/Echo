@@ -128,5 +128,24 @@ public struct ValueWitnessTableFlags {
   public var isIncomplete: Bool {
     bits & Flags.incomplete.rawValue != 0
   }
+}
+
+extension Metadata {
+  public func vw_initializeBufferWithCopyOfBuffer(
+    _ dest: UnsafeRawPointer,
+    _ src: UnsafeRawPointer
+  ) {
+    _ = vwt.initializeBufferWithCopyOfBuffer(dest, src, ptr)
+  }
   
+  public func vw_destroy(_ value: UnsafeRawPointer) {
+    vwt.destroy(value, ptr)
+  }
+  
+  public func vw_initializeWithCopy(
+    _ dest: UnsafeRawPointer,
+    _ src: UnsafeRawPointer
+  ) {
+    _ = vwt.initializeWithCopy(dest, src, ptr)
+  }
 }

@@ -23,14 +23,14 @@ extension TypeContextDescriptor {
   }
   
   public var name: String {
-    let address = _typeDescriptor._name.address(
-      from: ptr.offset(of: 2, as: Int32.self)
-    )
+    let offset = ptr.offset(of: 2, as: Int32.self)
+    let address = _typeDescriptor._name.address(from: offset)
     return String(cString: UnsafePointer<CChar>(address))
   }
   
   public var accessor: UnsafeRawPointer {
-    _typeDescriptor._accessor.pointee(from: ptr.offset(of: 3, as: Int32.self))!
+    let offset = ptr.offset(of: 3, as: Int32.self)
+    return _typeDescriptor._accessor.pointee(from: offset)!
   }
   
   public var isReflectable: Bool {
@@ -38,25 +38,17 @@ extension TypeContextDescriptor {
   }
   
   public var fields: FieldDescriptor {
-    let address = _typeDescriptor._fields.address(
-      from: ptr.offset(of: 4, as: Int32.self)
-    )
+    let offset = ptr.offset(of: 4, as: Int32.self)
+    let address = _typeDescriptor._fields.address(from: offset)
     return FieldDescriptor(ptr: address)
   }
   
-  public var genericContext: UnsafeRawPointer {
-    switch flags.kind {
-    case .struct:
-      return StructDescriptor(ptr: ptr).genericContext
-    default:
-      // FIXME: Add more generic contexts...
-      fatalError("This shouldn't happen...")
-    }
+  public var typeGenericContext: TypeGenericContext {
+    TypeGenericContext(ptr: ptr + genericContextOffset)
   }
 }
 
 public struct TypeContextDescriptorFlags {
-  
   public let bits: UInt64
   
   public var metadataInitKind: MetadataInitializationKind {

@@ -6,23 +6,30 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct TupleMetadata: Metadata {
+public struct TupleMetadata: Metadata, LayoutWrapper {
+  typealias Layout = _TupleMetadata
+  
   public let ptr: UnsafeRawPointer
   
-  var _tuple: _TupleMetadata {
-    ptr.load(as: _TupleMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .tuple
-  }
-  
   public var numElements: Int {
-    _tuple._numElements
+    layout._numElements
   }
   
-  public var labels: String {
-    String(cString: _tuple._labels)
+  public var labels: [String] {
+    let base = String(cString: layout._labels)
+    let split = base.split(
+      separator: " ",
+      maxSplits: numElements,
+      omittingEmptySubsequences: false
+    )
+    
+    var result = [String]()
+    
+    for i in 0 ..< numElements {
+      result.append(String(split[i]))
+    }
+    
+    return result
   }
   
   public var elements: [Element] {
@@ -39,23 +46,21 @@ public struct TupleMetadata: Metadata {
 }
 
 extension TupleMetadata {
-  public struct Element {
+  public struct Element: LayoutWrapper {
+    typealias Layout = _TupleElement
+    
     public let ptr: UnsafeRawPointer
     
-    var _element: _TupleElement {
-      ptr.load(as: _TupleElement.self)
-    }
-    
     public var metadata: Metadata {
-      getMetadata(at: _element._metadata)
+      reflect(type)
     }
     
     public var type: Any.Type {
-      metadata.type
+      layout._metadata
     }
     
     public var offset: Int {
-      Int(_element._offset)
+      Int(layout._offset)
     }
   }
 }
@@ -67,7 +72,7 @@ struct _TupleMetadata {
 }
 
 struct _TupleElement {
-  let _metadata: UnsafeRawPointer
+  let _metadata: Any.Type
   #if canImport(Darwin)
   let _offset: Int
   #else

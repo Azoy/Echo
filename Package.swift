@@ -19,6 +19,14 @@ let package = Package(
       name: "Echo",
       dependencies: ["CEcho"]
     ),
+    .target(
+      name: "EchoMirror",
+      dependencies: ["Echo"]
+    ),
+    .target(
+      name: "EchoStoredProperties",
+      dependencies: ["Echo"]
+    ),
     .testTarget(
       name: "EchoTests",
       dependencies: ["Echo"]

@@ -11,3 +11,9 @@ public func reflect(_ type: Any.Type) -> Metadata {
 
   return getMetadata(at: ptr)
 }
+
+public func reflect(_ instance: Any) -> Metadata {
+  let container = unsafeBitCast(instance, to: ExistentialContainer.self)
+  
+  return reflect(container.type)
+}

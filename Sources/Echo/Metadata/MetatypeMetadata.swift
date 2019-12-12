@@ -6,27 +6,21 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct MetatypeMetadata: Metadata {
+public struct MetatypeMetadata: Metadata, LayoutWrapper {
+  typealias Layout = _MetatypeMetadata
+  
   public let ptr: UnsafeRawPointer
   
-  var _metatype: _MetatypeMetadata {
-    ptr.load(as: _MetatypeMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .metatype
-  }
-  
   public var instanceMetadata: Metadata {
-    getMetadata(at: _metatype._instanceMetadata)
+    reflect(instanceType)
   }
   
   public var instanceType: Any.Type {
-    instanceMetadata.type
+    layout._instanceMetadata
   }
 }
 
 struct _MetatypeMetadata {
   let _kind: Int
-  let _instanceMetadata: UnsafeRawPointer
+  let _instanceMetadata: Any.Type
 }

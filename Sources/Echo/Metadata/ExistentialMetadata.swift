@@ -6,23 +6,17 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct ExistentialMetadata: Metadata {
+public struct ExistentialMetadata: Metadata, LayoutWrapper {
+  typealias Layout = _ExistentialMetadata
+  
   public let ptr: UnsafeRawPointer
   
-  var _existential: _ExistentialMetadata {
-    ptr.load(as: _ExistentialMetadata.self)
-  }
-  
-  public var kind: MetadataKind {
-    .existential
-  }
-  
-  public var flags: ExistentialFlags {
-    _existential._flags
+  public var flags: Flags {
+    layout._flags
   }
   
   public var numProtocols: Int {
-    Int(_existential._numProtos)
+    Int(layout._numProtos)
   }
   
   public var superclassMetadata: Metadata? {
@@ -36,41 +30,44 @@ public struct ExistentialMetadata: Metadata {
     return superclassMetadata?.type
   }
   
-  public var protocols: [ContextDescriptor] {
-    var result = [ContextDescriptor]()
+  public var protocols: [ProtocolDescriptor] {
+    var result = [ProtocolDescriptor]()
     
     for i in 0 ..< numProtocols {
       let offset = flags.hasSuperclassConstraint ? 3 : 2
       let address = ptr.offset(of: offset + i).load(as: UnsafeRawPointer.self)
-      result.append(StructDescriptor(ptr: address))
+      result.append(ProtocolDescriptor(ptr: address))
     }
     
     return result
   }
 }
 
-public struct ExistentialFlags {
-  public let bits: UInt32
-  
-  public var numWitnessTables: Int {
-    Int(bits & 0xFFFFFF)
-  }
-  
-  public var specialProtocol: SpecialProtocol {
-    SpecialProtocol(rawValue: UInt8((bits & 0x3F000000) >> 24))!
-  }
-  
-  public var hasSuperclassConstraint: Bool {
-    bits & 0x40000000 != 0
-  }
-  
-  public var isClassConstraint: Bool {
-    // Note this is inverted on purpose
-    bits & 0x80000000 == 0
+extension ExistentialMetadata {
+  public struct Flags {
+    public let bits: UInt32
+    
+    public var numWitnessTables: Int {
+      Int(bits & 0xFFFFFF)
+    }
+    
+    public var specialProtocol: SpecialProtocol {
+      SpecialProtocol(rawValue: UInt8((bits & 0x3F000000) >> 24))!
+    }
+    
+    public var hasSuperclassConstraint: Bool {
+      bits & 0x40000000 != 0
+    }
+    
+    public var isClassConstraint: Bool {
+      // Note this is inverted on purpose
+      bits & 0x80000000 == 0
+    }
   }
 }
 
 public enum SpecialProtocol: UInt8 {
+  // Every other protocol
   case none = 0
   
   // Swift.Error
@@ -79,6 +76,6 @@ public enum SpecialProtocol: UInt8 {
 
 struct _ExistentialMetadata {
   let _kind: Int
-  let _flags: ExistentialFlags
+  let _flags: ExistentialMetadata.Flags
   let _numProtos: UInt32
 }

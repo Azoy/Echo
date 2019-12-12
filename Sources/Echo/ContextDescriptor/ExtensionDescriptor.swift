@@ -6,15 +6,14 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct ExtensionDescriptor: ContextDescriptor {
+public struct ExtensionDescriptor: ContextDescriptor, LayoutWrapper {
+  typealias Layout = _ExtensionDescriptor
+  
   public let ptr: UnsafeRawPointer
   
-  var _extension: _ExtensionDescriptor {
-    ptr.load(as: _ExtensionDescriptor.self)
-  }
-  
   public var extendedContext: UnsafePointer<CChar> {
-    let address = _extension._extendedContext.address(from: ptr)
+    let offset = ptr.offset(of: 2, as: Int32.self)
+    let address = layout._extendedContext.address(from: offset)
     return UnsafePointer<CChar>(address)
   }
 }

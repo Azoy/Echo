@@ -6,23 +6,32 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-public struct AnonymousDescriptor: ContextDescriptor {
+/// An anonymous descriptor describes a context which is anonymous, like a
+/// function or a private declaration will have an anonymous parent context.
+public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
+  typealias Layout = _AnonymousDescriptor
+  
   public let ptr: UnsafeRawPointer
   
-  var _anonymous: _AnonymousDescriptor {
-    ptr.load(as: _AnonymousDescriptor.self)
+  public var anonymousFlags: Flags {
+    Flags(bits: layout._flags.kindSpecificFlags)
   }
   
-  public var anonymousFlags: AnonymousFlags {
-    AnonymousFlags(bits: _anonymous._flags.kindSpecificFlags)
-  }
-}
-
-public struct AnonymousFlags {
-  public let bits: UInt16
-  
-  public var hasMangledName: Bool {
-    bits & 0x1 != 0
+  public var mangledName: String? {
+    guard anonymousFlags.hasMangledName else {
+      return nil
+    }
+    
+    guard flags.isGeneric else {
+      let offset = ptr + MemoryLayout<_AnonymousDescriptor>.size
+      let relativePointer = RelativeDirectPointer<CChar>(
+        offset: offset.load(as: Int32.self)
+      )
+      let address = relativePointer.address(from: offset)
+      return String(cString: UnsafePointer<CChar>(address))
+    }
+    
+    return nil
   }
 }
 
