@@ -7,7 +7,7 @@ let package = Package(
   products: [
     .library(
       name: "Echo",
-      targets: ["Echo"]
+      targets: ["Echo", "EchoMirror", "EchoStoredProperties"]
     )
   ],
   targets: [
