@@ -10,14 +10,25 @@ public protocol TypeMetadata: Metadata {}
 
 extension TypeMetadata {
   public func type(
-    of ptr: UnsafePointer<CChar>
+    of mangledName: UnsafePointer<CChar>
   ) -> Any.Type? {
-    return _getTypeByMangledNameInContext(
-      UnsafePointer<UInt8>(ptr),
-      UInt(getSymbolicMangledNameLength(ptr.raw)),
+    let str = String(cString: mangledName)
+    
+    if mangledNameCache.keys.contains(ptr) {
+      if mangledNameCache[ptr]!.keys.contains(str) {
+        return mangledNameCache[ptr]![str]!
+      }
+    }
+    
+    let type = _getTypeByMangledNameInContext(
+      UnsafePointer<UInt8>(mangledName),
+      UInt(getSymbolicMangledNameLength(mangledName.raw)),
       genericContext: contextDescriptor.ptr,
       genericArguments: genericArgumentPtr
     )
+    
+    mangledNameCache[ptr, default: [:]][str] = type
+    return type
   }
   
   public var contextDescriptor: TypeContextDescriptor {
