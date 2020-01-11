@@ -6,19 +6,26 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
+/// A context descriptor describes any entity in Swift that contains other
+/// types or contexts.
 public protocol ContextDescriptor {
+  /// Backing context descriptor pointer.
   var ptr: UnsafeRawPointer { get }
 }
 
 extension ContextDescriptor {
-  var _descriptor: _Descriptor {
-    ptr.load(as: _Descriptor.self)
+  var _descriptor: _ContextDescriptor {
+    ptr.load(as: _ContextDescriptor.self)
   }
   
+  /// The flags that describe this context including what kind it is,
+  /// whether it's a generic context, and whether the context is unique along
+  /// with other things.
   public var flags: ContextDescriptorFlags {
     _descriptor._flags
   }
   
+  /// The parent context which this context descriptor resides in.
   public var parent: ContextDescriptor? {
     let offset = ptr.offset(of: 1, as: Int32.self)
     
@@ -26,7 +33,7 @@ extension ContextDescriptor {
       return nil
     }
     
-    let ptr = _descriptor._parent.address(from: offset)
+    let ptr = _descriptor._parent.address(from: offset).raw
     
     switch _parent._flags.kind {
     case .anonymous:
@@ -51,7 +58,7 @@ extension ContextDescriptor {
   var genericContextOffset: Int {
     switch self {
     case is AnonymousDescriptor:
-      return MemoryLayout<_AnonymousDescriptor>.size
+      return MemoryLayout<_ContextDescriptor>.size
     case is ClassDescriptor:
       return MemoryLayout<_ClassDescriptor>.size
     case is EnumDescriptor:
@@ -65,6 +72,9 @@ extension ContextDescriptor {
     }
   }
   
+  /// The generic information about a context including the number of generic
+  /// parameters, number of requirements, the parameters themselves, the
+  /// requirements themselves, and much more.
   public var genericContext: GenericContext? {
     guard flags.isGeneric else { return nil }
     
@@ -76,44 +86,8 @@ extension ContextDescriptor {
   }
 }
 
-public enum ContextDescriptorKind: Int {
-  case module = 0
-  case `extension` = 1
-  case anonymous = 2
-  case `protocol` = 3
-  case opaqueType = 4
-  case `class` = 16
-  case `struct` = 17
-  case `enum` = 18
-}
-
-public struct ContextDescriptorFlags {
-  
-  public let bits: UInt32
-  
-  public var isGeneric: Bool {
-    bits & 0x80 != 0
-  }
-  
-  public var isUnique: Bool {
-    bits & 0x40 != 0
-  }
-  
-  public var kind: ContextDescriptorKind {
-    return ContextDescriptorKind(rawValue: Int(bits) & 0x1F)!
-  }
-  
-  public var version: UInt8 {
-    UInt8((bits >> 0x8) & 0xFF)
-  }
-  
-  var kindSpecificFlags: UInt16 {
-    UInt16((bits >> 0xF) & 0xFFFF)
-  }
-}
-
 // This is used as a base type that can be bit casted to.
-struct _Descriptor {
+struct _ContextDescriptor {
   let _flags: ContextDescriptorFlags
-  let _parent: RelativeIndirectablePointer<_Descriptor>
+  let _parent: RelativeIndirectablePointer<_ContextDescriptor>
 }

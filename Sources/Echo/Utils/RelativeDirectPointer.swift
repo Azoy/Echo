@@ -9,17 +9,20 @@
 struct RelativeDirectPointer<Pointee>: RelativePointer {
   let offset: Int32
   
-  func load<T>(from ptr: UnsafeRawPointer, as type: T.Type) -> T? {
+  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
     if offset == 0 {
       return nil
     }
     
-    return address(from: ptr).load(as: T.self)
+    return address(from: ptr).pointee
   }
 }
 
-/*
 extension UnsafeRawPointer {
-  static func 
+  func relativeDirectAddress<T>(as type: T.Type) -> UnsafePointer<T> {
+    let relativePointer = RelativeDirectPointer<T>(
+      offset: load(as: Int32.self)
+    )
+    return relativePointer.address(from: self)
+  }
 }
-*/

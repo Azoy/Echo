@@ -51,12 +51,12 @@ extension TupleMetadata {
     
     public let ptr: UnsafeRawPointer
     
-    public var metadata: Metadata {
-      reflect(type)
-    }
-    
     public var type: Any.Type {
       layout._metadata
+    }
+    
+    public var metadata: Metadata {
+      reflect(type)
     }
     
     public var offset: Int {

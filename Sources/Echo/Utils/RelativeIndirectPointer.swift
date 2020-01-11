@@ -6,14 +6,16 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-struct RelativeIndirectPointer<Pointee>: RelativePointer {
+struct RelativeIndirectPointer<T>: RelativePointer {
+  typealias Pointee = UnsafePointer<T>
+  
   let offset: Int32
   
-  func load<T>(from ptr: UnsafeRawPointer, as type: T.Type) -> T? {
+  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
     if offset == 0 {
       return nil
     }
     
-    return address(from: ptr).load(as: UnsafePointer<T>.self).pointee
+    return address(from: ptr).pointee
   }
 }

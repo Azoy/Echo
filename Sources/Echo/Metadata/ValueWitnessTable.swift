@@ -7,7 +7,89 @@
 //
 
 public struct ValueWitnessTable {
-  public let initializeBufferWithCopyOfBuffer: @convention(c) (
+  public let ptr: UnsafeRawPointer
+  
+  var _vwt: _ValueWitnessTable {
+    ptr.load(as: UnsafePointer<_ValueWitnessTable>.self).pointee
+  }
+  
+  var metadataPtr: UnsafeRawPointer {
+    ptr.offset(of: 1)
+  }
+  
+  public func initializeBufferWithCopyOfBuffer(
+    _ dest: UnsafeRawPointer,
+    _ source: UnsafeRawPointer
+  ) {
+    _ = _vwt._initializeBufferWithCopyOfBuffer(dest, source, metadataPtr)
+  }
+  
+  public func destroy(_ value: UnsafeRawPointer) {
+    _vwt._destroy(value, metadataPtr)
+  }
+  
+  public func initializeWithCopy(
+    _ dest: UnsafeRawPointer,
+    _ source: UnsafeRawPointer
+  ) {
+    _ = _vwt._initializeWithCopy(dest, source, metadataPtr)
+  }
+  
+  public func assignWithCopy(
+    _ dest: UnsafeRawPointer,
+    _ source: UnsafeRawPointer
+  ) {
+    _ = _vwt._assignWithCopy(dest, source, metadataPtr)
+  }
+  
+  public func initializeWithTake(
+    _ dest: UnsafeRawPointer,
+    _ source: UnsafeRawPointer
+  ) {
+    _ = _vwt._initializeWithTake(dest, source, metadataPtr)
+  }
+  
+  public func assignWithTake(
+    _ dest: UnsafeRawPointer,
+    _ source: UnsafeRawPointer
+  ) {
+    _ = _vwt._assignWithTake(dest, source, metadataPtr)
+  }
+  
+  public func getEnumTagSinglePayload(
+    _ instance: UnsafeRawPointer,
+    _ numEmptyCases: UInt32
+  ) -> UInt32 {
+    _vwt._getEnumTagSinglePayload(instance, numEmptyCases, metadataPtr)
+  }
+  
+  public func storeEnumTagSinglePayload(
+    _ instance: UnsafeRawPointer,
+    _ tag: UInt32,
+    _ numEmptyCases: UInt32
+  ) {
+    _vwt._storeEnumTagSinglePayload(instance, tag, numEmptyCases, metadataPtr)
+  }
+  
+  public var size: Int {
+    _vwt._size
+  }
+  
+  public var stride: Int {
+    _vwt._stride
+  }
+  
+  public var flags: ValueWitnessTableFlags {
+    _vwt._flags
+  }
+  
+  public var extraInhabitantCount: Int {
+    Int(_vwt._extraInhabitantCount)
+  }
+}
+
+struct _ValueWitnessTable {
+  let _initializeBufferWithCopyOfBuffer: @convention(c) (
     // Destination buffer
     UnsafeRawPointer,
     // Source buffer
@@ -16,14 +98,14 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> UnsafeRawPointer // returns destination value
   
-  public let destroy: @convention(c) (
+  let _destroy: @convention(c) (
     // Value
     UnsafeRawPointer,
     // Type metadata
     UnsafeRawPointer
   ) -> ()
   
-  public let initializeWithCopy: @convention(c) (
+  let _initializeWithCopy: @convention(c) (
     // Destination value
     UnsafeRawPointer,
     // Source value
@@ -32,7 +114,7 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> UnsafeRawPointer // returns destination
   
-  public let assignWithCopy: @convention(c) (
+  let _assignWithCopy: @convention(c) (
     // Destination value
     UnsafeRawPointer,
     // Source value
@@ -41,7 +123,7 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> UnsafeRawPointer // returns destination
   
-  public let initializeWithTake: @convention(c) (
+  let _initializeWithTake: @convention(c) (
     // Destination value
     UnsafeRawPointer,
     // Source value
@@ -50,7 +132,7 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> UnsafeRawPointer // returns destination
   
-  public let assignWithTake: @convention(c) (
+  let _assignWithTake: @convention(c) (
     // Destination value
     UnsafeRawPointer,
     // Source value
@@ -59,7 +141,7 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> UnsafeRawPointer // returns destination
   
-  public let getEnumTagSinglePayload: @convention(c) (
+  let _getEnumTagSinglePayload: @convention(c) (
     // Instance of single payload enum
     UnsafeRawPointer,
     // Number of empty cases
@@ -67,7 +149,8 @@ public struct ValueWitnessTable {
     // Type metadata
     UnsafeRawPointer
   ) -> UInt32 // returns tag of enum
-  public let storeEnumTagSinglePayload: @convention(c) (
+  
+  let _storeEnumTagSinglePayload: @convention(c) (
     // Instance of single payload enum
     UnsafeRawPointer,
     // Which enum case
@@ -78,74 +161,8 @@ public struct ValueWitnessTable {
     UnsafeRawPointer
   ) -> ()
   
-  public let size: Int
-  public let stride: Int
-  public let flags: ValueWitnessTableFlags
-  public let extraInhabitantCount: UInt32
-  
-  public var alignment: Int {
-    flags.alignment
-  }
-}
-
-public struct ValueWitnessTableFlags {
-  enum Flags: UInt32 {
-    case isNonPOD            = 0x010000
-    case isNonInline         = 0x020000
-    // unused                = 0x040000
-    case hasSpareBits        = 0x080000
-    case isNonBitwiseTakable = 0x100000
-    case hasEnumWitnesses    = 0x200000
-    case incomplete          = 0x400000
-  }
-  
-  let bits: UInt32
-  
-  public var alignment: Int {
-    alignmentMask + 1
-  }
-  
-  var alignmentMask: Int {
-    Int(bits & 0xFF)
-  }
-  
-  public var isValueInline: Bool {
-    bits & Flags.isNonInline.rawValue == 0
-  }
-  
-  public var isPOD: Bool {
-    bits & Flags.isNonPOD.rawValue == 0
-  }
-  
-  public var isBitwiseTakable: Bool {
-    bits & Flags.isNonBitwiseTakable.rawValue == 0
-  }
-  
-  public var hasEnumWitnesses: Bool {
-    bits & Flags.hasEnumWitnesses.rawValue != 0
-  }
-  
-  public var isIncomplete: Bool {
-    bits & Flags.incomplete.rawValue != 0
-  }
-}
-
-extension Metadata {
-  public func vw_initializeBufferWithCopyOfBuffer(
-    _ dest: UnsafeRawPointer,
-    _ src: UnsafeRawPointer
-  ) {
-    _ = vwt.initializeBufferWithCopyOfBuffer(dest, src, ptr)
-  }
-  
-  public func vw_destroy(_ value: UnsafeRawPointer) {
-    vwt.destroy(value, ptr)
-  }
-  
-  public func vw_initializeWithCopy(
-    _ dest: UnsafeRawPointer,
-    _ src: UnsafeRawPointer
-  ) {
-    _ = vwt.initializeWithCopy(dest, src, ptr)
-  }
+  let _size: Int
+  let _stride: Int
+  let _flags: ValueWitnessTableFlags
+  let _extraInhabitantCount: UInt32
 }

@@ -24,18 +24,12 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     return UnsafeRawPointer(bitPattern: int)!
   }
   
-  public var superclassMetadata: ClassMetadata? {
-    guard superclassType != nil else {
-      return nil
-    }
-    
-    return ClassMetadata(
-      ptr: unsafeBitCast(superclassType!, to: UnsafeRawPointer.self)
-    )
-  }
-  
   public var superclassType: Any.Type? {
     layout._superclass
+  }
+  
+  public var superclassMetadata: ClassMetadata? {
+    superclassType.map { reflect($0) as! ClassMetadata }
   }
   
   public var classFlags: Flags {
@@ -60,32 +54,12 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   }
   
   public var fieldOffsets: [Int] {
-    var result = [Int]()
-    
-    for i in 0 ..< descriptor.numFields {
-      let address = ptr.offset(of: descriptor.fieldOffsetVectorOffset + i)
-      result.append(address.load(as: Int.self))
-    }
-    
-    return result
-  }
-}
-
-extension ClassMetadata {
-  public struct Flags {
-    public let bits: UInt32
-    
-    public var isSwiftPreStableABI: Bool {
-      bits & 0x1 != 0
-    }
-    
-    public var usesSwiftRefCounting: Bool {
-      bits & 0x2 != 0
-    }
-    
-    public var hasCustomObjCName: Bool {
-      bits & 0x4 != 0
-    }
+    let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
+    let buffer = UnsafeBufferPointer<UInt32>(
+      start: UnsafePointer<UInt32>(start),
+      count: descriptor.numFields
+    )
+    return Array(buffer).map { Int($0) }
   }
 }
 

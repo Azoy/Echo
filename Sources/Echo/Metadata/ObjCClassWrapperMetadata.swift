@@ -11,12 +11,12 @@ public struct ObjCClassWrapperMetadata: Metadata, LayoutWrapper {
   
   public let ptr: UnsafeRawPointer
   
-  public var classMetadata: ClassMetadata {
-    ClassMetadata(ptr: unsafeBitCast(classType, to: UnsafeRawPointer.self))
-  }
-  
   public var classType: Any.Type {
     layout._classMetadata
+  }
+  
+  public var classMetadata: ClassMetadata {
+    reflect(classType) as! ClassMetadata
   }
 }
 

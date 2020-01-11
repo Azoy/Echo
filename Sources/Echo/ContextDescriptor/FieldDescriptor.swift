@@ -6,38 +6,45 @@
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
+/// A special descriptor that describes a type's fields.
 public struct FieldDescriptor: LayoutWrapper {
   typealias Layout = _FieldDescriptor
   
+  /// Backing field descriptor pointer.
   public let ptr: UnsafeRawPointer
   
+  /// Whether or not this field descriptor has a mangled name.
   public var hasMangledTypeName: Bool {
     layout._mangledTypeName.offset != 0
   }
   
+  /// The mangled name for this field descriptor.
   public var mangledTypeName: UnsafePointer<CChar> {
-    let address = layout._mangledTypeName.address(from: ptr)
-    return UnsafePointer<CChar>(address)
+    layout._mangledTypeName.address(from: ptr)
   }
   
+  /// The superclass mangled name for a class.
   public var superclass: UnsafePointer<CChar> {
     let offset = ptr.offset(of: 1, as: Int32.self)
-    let address = layout._superclass.address(from: offset)
-    return UnsafePointer<CChar>(address)
+    return layout._superclass.address(from: offset)
   }
   
+  /// The kind of field descriptor this is.
   public var kind: Kind {
     Kind(rawValue: layout._kind)!
   }
   
+  /// The size in bytes of each field record.
   public var recordSize: Int {
     Int(layout._recordSize)
   }
   
+  /// The number of fields (properties) that this type declares.
   public var numFields: Int {
     Int(layout._numFields)
   }
   
+  /// An array of this type's field records.
   public var records: [FieldRecord] {
     var result = [FieldRecord]()
     
@@ -51,58 +58,44 @@ public struct FieldDescriptor: LayoutWrapper {
   }
 }
 
+/// A record that describes a single stored property or an enum case.
 public struct FieldRecord: LayoutWrapper {
   typealias Layout = _FieldRecord
   
+  /// Backing field record pointer.
   public let ptr: UnsafeRawPointer
   
+  /// The flags that describe this field record.
   public var flags: Flags {
     layout._flags
   }
   
+  /// Whether or not this record has a mangled type name that describes the
+  /// fields type.
   public var hasMangledTypeName: Bool {
     layout._mangledTypeName.offset != 0
   }
   
+  /// The mangled type name that demangles to the field's type.
+  ///
+  /// Note: Use this in combination with metadata's type(of:) method to get a
+  ///       field's type.
+  ///
+  /// Example:
+  ///     let metadata = reflect(SomeType.self) as! TypeMetadata
+  ///     for field in metadata.contextDescriptor.fields.records {
+  ///       let fieldType = metadata.type(of: field.mangledTypeName)
+  ///     }
   public var mangledTypeName: UnsafePointer<CChar> {
     let offset = ptr.offset(of: 1, as: Int32.self)
-    let address = layout._mangledTypeName.address(from: offset)
-    return UnsafePointer<CChar>(address)
+    return layout._mangledTypeName.address(from: offset)
   }
   
+  /// The name of the field.
   public var name: String {
     let offset = ptr.offset(of: 2, as: Int32.self)
     let address = layout._fieldName.address(from: offset)
-    return String(cString: UnsafePointer<CChar>(address))
-  }
-}
-
-extension FieldDescriptor {
-  public enum Kind: UInt16 {
-    case `struct` = 0
-    case `class` = 1
-    case `enum` = 2
-    case multiPayloadEnum = 3
-    case `protocol` = 4
-    case classProtocol = 5
-    case objcProtocol = 6
-    case objcClass = 7
-  }
-}
-
-extension FieldRecord {
-  public struct Flags {
-    public let bits: UInt32
-    
-    // IsIndirectCase = 0x1
-    public var isIndirectCase: Bool {
-      bits & 0x1 != 0
-    }
-    
-    // IsVar = 0x2
-    public var isVar: Bool {
-      bits & 0x2 != 0
-    }
+    return String(cString: address)
   }
 }
 

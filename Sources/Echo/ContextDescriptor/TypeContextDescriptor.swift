@@ -25,7 +25,7 @@ extension TypeContextDescriptor {
   public var name: String {
     let offset = ptr.offset(of: 2, as: Int32.self)
     let address = _typeDescriptor._name.address(from: offset)
-    return String(cString: UnsafePointer<CChar>(address))
+    return String(cString: address)
   }
   
   public var accessor: UnsafeRawPointer {
@@ -39,7 +39,7 @@ extension TypeContextDescriptor {
   
   public var fields: FieldDescriptor {
     let offset = ptr.offset(of: 4, as: Int32.self)
-    let address = _typeDescriptor._fields.address(from: offset)
+    let address = _typeDescriptor._fields.address(from: offset).raw
     return FieldDescriptor(ptr: address)
   }
   
@@ -48,54 +48,8 @@ extension TypeContextDescriptor {
   }
 }
 
-public struct TypeContextDescriptorFlags {
-  public let bits: UInt64
-  
-  public var metadataInitKind: MetadataInitializationKind {
-    MetadataInitializationKind(rawValue: UInt16(bits) & 0x3)!
-  }
-  
-  public var hasImportInfo: Bool {
-    bits & 0x4 != 0
-  }
-  
-  public var resilientSuperclassRefKind: TypeReferenceKind {
-    TypeReferenceKind(rawValue: UInt16(bits) & 0xE00)!
-  }
-  
-  public var classAreImmediateMembersNegative: Bool {
-    bits & 0x1000 != 0
-  }
-  
-  public var classHasResilientSuperclass: Bool {
-    bits & 0x2000 != 0
-  }
-  
-  public var classHasOverrideTable: Bool {
-    bits & 0x4000 != 0
-  }
-  
-  public var classHasVTable: Bool {
-    bits & 0x8000 != 0
-  }
-}
-
-public enum MetadataInitializationKind: UInt16 {
-  case none = 0
-  case singleton = 1
-  case foreign = 2
-}
-
-public enum TypeReferenceKind: UInt16 {
-  case directTypeDescriptor = 0x0
-  case indirectTypeDescriptor = 0x1
-  case directObjCClass = 0x2
-  case indirectObjCClass = 0x3
-}
-
 struct _TypeDescriptor {
-  let _flags: ContextDescriptorFlags
-  let _parent: RelativeIndirectablePointer<_Descriptor>
+  let _base: _ContextDescriptor
   let _name: RelativeDirectPointer<CChar>
   let _accessor: RelativeDirectPointer<UnsafeRawPointer>
   let _fields: RelativeDirectPointer<_FieldDescriptor>

@@ -76,7 +76,7 @@ func getStructFields(
     let offset = metadata.fieldOffsets[i]
     var value = ExistentialContainer(type: type)
     let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
-    fieldMetadata.vw_initializeWithCopy(buffer, opaqueValue + offset)
+    fieldMetadata.vwt.initializeWithCopy(buffer, opaqueValue + offset)
     
     result.append((label: label, value: unsafeBitCast(value, to: Any.self)))
   }
@@ -102,7 +102,7 @@ func getTupleFields(
     let elt = metadata.elements[i]
     var value = ExistentialContainer(type: elt.type)
     let buffer = elt.metadata.allocateBoxForExistential(in: &value)
-    elt.metadata.vw_initializeWithCopy(buffer, opaqueValue + elt.offset)
+    elt.metadata.vwt.initializeWithCopy(buffer, opaqueValue + elt.offset)
     
     result.append((label: label, value: unsafeBitCast(value, to: Any.self)))
   }
@@ -123,7 +123,7 @@ func getEnumFields(
   
   var result = [Swift.Mirror.Child]()
   
-  let tag = metadata.enumVwt.getEnumTag(opaqueValue, metadata.ptr)
+  let tag = metadata.enumVwt.getEnumTag(for: opaqueValue)
   let field = metadata.descriptor.fields.records[Int(tag)]
   let name = field.name
   let type = metadata.type(of: field.mangledTypeName)
@@ -138,9 +138,9 @@ func getEnumFields(
                           nativeObject : reflect(type!)
   let pair = swift_allocBox(for: payloadMetadata)
   
-  metadata.enumVwt.destructiveProjectEnumData(opaqueValue, metadata.ptr)
-  payloadMetadata.vw_initializeWithCopy(pair.buffer, opaqueValue)
-  metadata.enumVwt.destructiveInjectEnumTag(opaqueValue, tag, metadata.ptr)
+  metadata.enumVwt.destructiveProjectEnumData(for: opaqueValue)
+  payloadMetadata.vwt.initializeWithCopy(pair.buffer, opaqueValue)
+  metadata.enumVwt.destructiveInjectEnumTag(for: opaqueValue, tag: tag)
   
   opaqueValue = pair.buffer
   
@@ -153,7 +153,7 @@ func getEnumFields(
   
   var value = ExistentialContainer(metadata: payloadMetadata)
   let buffer = payloadMetadata.allocateBoxForExistential(in: &value)
-  payloadMetadata.vw_initializeWithCopy(buffer, opaqueValue)
+  payloadMetadata.vwt.initializeWithCopy(buffer, opaqueValue)
   
   swift_release(pair.heapObj)
   
@@ -182,7 +182,7 @@ func getClassFields(
     var value = ExistentialContainer(type: type)
     let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
     withUnsafePointer(to: instance) {
-      fieldMetadata.vw_initializeWithCopy(
+      fieldMetadata.vwt.initializeWithCopy(
         buffer,
         UnsafePointer<UnsafeRawPointer>($0._rawValue).pointee + offset
       )

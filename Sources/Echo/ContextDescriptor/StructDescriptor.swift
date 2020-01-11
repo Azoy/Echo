@@ -21,11 +21,7 @@ public struct StructDescriptor: TypeContextDescriptor, LayoutWrapper {
 }
 
 struct _StructDescriptor {
-  let _flags: ContextDescriptorFlags
-  let _parent: RelativeIndirectablePointer<_Descriptor>
-  let _name: RelativeDirectPointer<CChar>
-  let _accessor: RelativeDirectPointer<UnsafeRawPointer>
-  let _fields: RelativeDirectPointer<_FieldDescriptor>
+  let _base: _TypeDescriptor
   let _numFields: UInt32
   let _fieldOffsetVectorOffset: UInt32
 }

@@ -1,13 +1,13 @@
 //
 //  KnownMetadata.h
-//
+//  Echo
 //
 //  Created by Alejandro Alonso
 //  Copyright © 2019 Alejandro Alonso. All rights reserved.
 //
 
-#ifndef KNOWNMETADATA
-#define KNOWNMETADATA
+#ifndef KNOWN_METADATA
+#define KNOWN_METADATA
 
 // The mangling scheme for builtin metadata is:
 // $s SYMBOL N

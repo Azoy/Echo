@@ -57,10 +57,6 @@ extension TypeMetadata {
     }
   }
   
-  public var genericMetadata: [Metadata] {
-    genericTypes.map { reflect($0) }
-  }
-  
   public var genericTypes: [Any.Type] {
     guard contextDescriptor.flags.isGeneric else {
       return []
@@ -71,5 +67,9 @@ extension TypeMetadata {
       count: contextDescriptor.genericContext!.numParams
     )
     return Array(buffer)
+  }
+  
+  public var genericMetadata: [Metadata] {
+    genericTypes.map { reflect($0) }
   }
 }

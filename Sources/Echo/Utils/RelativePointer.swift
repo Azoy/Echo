@@ -17,24 +17,19 @@
 // accessing a relative pointer's value, but it doesn't require the var dance.
 // I might reconsider this decision down the road, but for now this is what I'm
 // going with. At the end of the day, I don't want to require the user to be
-// forced to write `var metadata = reflect(type)` when they could also be
-// making this a let constant.
+// forced to write `var metadata = reflect(type)` as a var when naturally the
+// first instinct is to go for a let first.
 protocol RelativePointer {
   associatedtype Pointee
   
   var offset: Int32 { get }
   
-  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer
-  func load<T>(from ptr: UnsafeRawPointer, as type: T.Type) -> T?
+  func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee>
   func pointee(from ptr: UnsafeRawPointer) -> Pointee?
 }
 
 extension RelativePointer {
-  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
-    ptr + Int(offset)
-  }
-  
-  func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
-    load(from: ptr, as: Pointee.self)
+  func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee> {
+    UnsafePointer<Pointee>(ptr + Int(offset))
   }
 }

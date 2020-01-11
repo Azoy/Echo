@@ -11,12 +11,12 @@ public struct MetatypeMetadata: Metadata, LayoutWrapper {
   
   public let ptr: UnsafeRawPointer
   
-  public var instanceMetadata: Metadata {
-    reflect(instanceType)
-  }
-  
   public var instanceType: Any.Type {
     layout._instanceMetadata
+  }
+  
+  public var instanceMetadata: Metadata {
+    reflect(instanceType)
   }
 }
 

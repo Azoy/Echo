@@ -9,33 +9,32 @@
 /// An anonymous descriptor describes a context which is anonymous, like a
 /// function or a private declaration will have an anonymous parent context.
 public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
-  typealias Layout = _AnonymousDescriptor
+  typealias Layout = _ContextDescriptor
   
+  // Backing context descriptor pointer.
   public let ptr: UnsafeRawPointer
   
+  /// The specific flags that describe an anonymous descriptor.
   public var anonymousFlags: Flags {
     Flags(bits: layout._flags.kindSpecificFlags)
   }
   
+  /// The trailing mangled name for the anonymous context.
   public var mangledName: String? {
     guard anonymousFlags.hasMangledName else {
       return nil
     }
     
-    guard flags.isGeneric else {
-      let offset = ptr + MemoryLayout<_AnonymousDescriptor>.size
-      let relativePointer = RelativeDirectPointer<CChar>(
-        offset: offset.load(as: Int32.self)
-      )
-      let address = relativePointer.address(from: offset)
-      return String(cString: UnsafePointer<CChar>(address))
-    }
+    var offset = ptr + MemoryLayout<_ContextDescriptor>.size
     
-    return nil
+    // If this context isn't generic, then the only trailing member is the
+    // mangled name. Otherwise, we need to calculate how large the generic
+    // context is and find the mangled name after it.
+    if flags.isGeneric {
+      offset += genericContext!.size
+    }
+  
+    let address = offset.relativeDirectAddress(as: CChar.self)
+    return String(cString: address)
   }
-}
-
-struct _AnonymousDescriptor {
-  let _flags: ContextDescriptorFlags
-  let _parent: RelativeIndirectablePointer<_Descriptor>
 }

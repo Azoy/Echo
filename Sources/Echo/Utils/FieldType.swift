@@ -18,16 +18,13 @@ public struct FieldType {
     bits & 0x2 != 0
   }
   
-  var metadataPtr: UnsafeRawPointer {
-    let typeMask = UInt.max & ~UInt(MemoryLayout<UnsafeRawPointer>.alignment - 1)
-    return UnsafeRawPointer(bitPattern: bits & typeMask)!
-  }
-  
   public var metadata: Metadata {
-    getMetadata(at: metadataPtr)
+    reflect(type)
   }
   
   public var type: Any.Type {
-    metadata.type
+    let typeMask = UInt.max & ~UInt(MemoryLayout<UnsafeRawPointer>.alignment - 1)
+    let address = UnsafeRawPointer(bitPattern: bits & typeMask)!
+    return unsafeBitCast(address, to: Any.Type.self)
   }
 }
