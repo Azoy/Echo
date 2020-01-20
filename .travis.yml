@@ -9,8 +9,8 @@ matrix:
         - sudo apt-get install clang libicu-dev
       before_script:
         - wget "https://swift.org/builds/swift-5.0.3-release/ubuntu1604/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz" -O "/tmp/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz"
-        - tar -xvf "/tmp/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz"
-        - export PATH="$PATH:$PWD/swift-5.0.3-RELEASE-ubuntu16.04/bin"
+        - tar xzf "/tmp/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz"
+        - export PATH="$PATH:$PWD/swift-5.0.3-RELEASE-ubuntu16.04/usr/bin"
     - os: osx
       osx_image: xcode11.3
 
