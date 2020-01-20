@@ -7,10 +7,12 @@ matrix:
       sudo: required
       before_install:
         - sudo apt-get install clang libicu-dev
-      install:
-        - eval "$(curl -sL https://gist.githubusercontent.com/Azoy/a723677c6cdc891e9b0ab2df1fc1d018/raw/4385d68335f4e784dfe1a3ef8f6decd5c6e856a6/swift-5.0.3-travis.sh)"
+      before_script:
+        - wget "https://swift.org/builds/swift-5.0.3-release/ubuntu1604/swift-5.0.3-RELEASE/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz" -O "/tmp/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz"
+        - tar -xvf "/tmp/swift-5.0.3-RELEASE-ubuntu16.04.tar.gz"
+        - export PATH="$PATH:$PWD/swift-5.0.3-RELEASE-ubuntu16.04/bin"
     - os: osx
-      osx_image: xcode10.2
+      osx_image: xcode11.3
 
 script:
   - swift test
