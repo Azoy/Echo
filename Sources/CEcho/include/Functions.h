@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 #ifndef SWIFT_RUNTIME_FUNCTIONS

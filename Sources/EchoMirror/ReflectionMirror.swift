@@ -3,8 +3,10 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
+
+// TODO: Handle weak, unowned, and unmanaged properties.
 
 import Echo
 
@@ -63,7 +65,7 @@ func getStructFields(
     return []
   }
   
-  var container = unsafeBitCast(instance, to: ExistentialContainer.self)
+  var container = unsafeBitCast(instance, to: AnyExistentialContainer.self)
   let opaqueValue = container.projectValue()
   
   var result = [Swift.Mirror.Child]()
@@ -74,7 +76,7 @@ func getStructFields(
     let type = metadata.type(of: field.mangledTypeName)!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
-    var value = ExistentialContainer(type: type)
+    var value = AnyExistentialContainer(type: type)
     let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
     fieldMetadata.vwt.initializeWithCopy(buffer, opaqueValue + offset)
     
@@ -88,7 +90,7 @@ func getTupleFields(
   from instance: Any,
   with metadata: TupleMetadata
 ) -> [Swift.Mirror.Child] {
-  var container = unsafeBitCast(instance, to: ExistentialContainer.self)
+  var container = unsafeBitCast(instance, to: AnyExistentialContainer.self)
   let opaqueValue = container.projectValue()
   
   var result = [Swift.Mirror.Child]()
@@ -100,7 +102,7 @@ func getTupleFields(
     }
     
     let elt = metadata.elements[i]
-    var value = ExistentialContainer(type: elt.type)
+    var value = AnyExistentialContainer(type: elt.type)
     let buffer = elt.metadata.allocateBoxForExistential(in: &value)
     elt.metadata.vwt.initializeWithCopy(buffer, opaqueValue + elt.offset)
     
@@ -118,7 +120,7 @@ func getEnumFields(
     return []
   }
   
-  var container = unsafeBitCast(instance, to: ExistentialContainer.self)
+  var container = unsafeBitCast(instance, to: AnyExistentialContainer.self)
   var opaqueValue = container.projectValue()
   
   var result = [Swift.Mirror.Child]()
@@ -133,7 +135,7 @@ func getEnumFields(
     return result
   }
   
-  let nativeObject = KnownMetadata.Builtin.NativeObject
+  let nativeObject = KnownMetadata.Builtin.nativeObject
   let payloadMetadata = field.flags.isIndirectCase ?
                           nativeObject : reflect(type!)
   let pair = swift_allocBox(for: payloadMetadata)
@@ -151,7 +153,7 @@ func getEnumFields(
     opaqueValue = swift_projectBox(for: owner)
   }
   
-  var value = ExistentialContainer(metadata: payloadMetadata)
+  var value = AnyExistentialContainer(metadata: payloadMetadata)
   let buffer = payloadMetadata.allocateBoxForExistential(in: &value)
   payloadMetadata.vwt.initializeWithCopy(buffer, opaqueValue)
   
@@ -179,7 +181,7 @@ func getClassFields(
     let type = metadata.type(of: field.mangledTypeName)!
     let fieldMetadata = reflect(type)
     let offset = metadata.fieldOffsets[i]
-    var value = ExistentialContainer(type: type)
+    var value = AnyExistentialContainer(type: type)
     let buffer = fieldMetadata.allocateBoxForExistential(in: &value)
     withUnsafePointer(to: instance) {
       fieldMetadata.vwt.initializeWithCopy(

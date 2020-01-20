@@ -1,11 +1,3 @@
-//
-//  EnumDescriptor.swift
-//  EchoTests
-//
-//  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
-//
-
 import XCTest
 @testable import Echo
 
@@ -26,8 +18,6 @@ extension EchoTests {
     // 9 because symbolic prefix (1), symbol (4), ySiG (4)
     // where ySiG is binding the type to <Int>
     XCTAssertEqual(size, 9)
-    
-    print(metadata.descriptor.genericContext!.)
   }
 }
 

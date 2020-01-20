@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 import CEcho
@@ -12,8 +12,14 @@ import CEcho
 // Box Functions
 //===----------------------------------------------------------------------===//
 
+/// A box pair is the pair of heap object + value within said heap object.
+/// When you allocate a new box, you're given a pointer to the heap object
+/// along with a pointer to the value inside the heap object.
 public struct BoxPair {
+  /// A pointer to the allocated heap object.
   public let heapObj: UnsafePointer<HeapObject>
+  
+  /// A pointer to the value inside the heap object.
   public let buffer: UnsafeRawPointer
 }
 
@@ -69,57 +75,4 @@ public func swift_getTypeName(
   qualified: Bool
 ) -> String {
   swift_getTypeName(for: metadata.type, qualified: qualified)
-}
-
-@_silgen_name("swift_checkMetadataState")
-public func swift_checkMetadataState(
-  _ request: MetadataRequest,
-  for type: Any.Type
-) -> MetadataResponse
-
-public func swift_checkMetadataState(
-  _ request: MetadataRequest,
-  for metadata: Metadata
-) -> MetadataResponse {
-  swift_checkMetadataState(request, for: metadata.type)
-}
-
-@_silgen_name("swift_getTupleTypeMetadata2")
-func _swift_getTupleTypeMetadata2(
-  _ request: MetadataRequest,
-  type1: Any.Type,
-  type2: Any.Type,
-  labels: UnsafePointer<CChar>
-  // There's another proposed witnesses field here, but it's best to just leave
-  // that blank.
-) -> MetadataResponse
-
-public func swift_getTupleTypeMetadata2(
-  _ request: MetadataRequest,
-  type1: Any.Type,
-  type2: Any.Type,
-  labels: String
-) -> MetadataResponse {
-  labels.withCString {
-    _swift_getTupleTypeMetadata2(
-      request,
-      type1: type1,
-      type2: type2,
-      labels: $0
-    )
-  }
-}
-
-public func swift_getTupleTypeMetadata2(
-  _ request: MetadataRequest,
-  type1: Metadata,
-  type2: Metadata,
-  labels: String
-) -> MetadataResponse {
-  swift_getTupleTypeMetadata2(
-    request,
-    type1: type1.type,
-    type2: type2.type,
-    labels: labels
-  )
 }

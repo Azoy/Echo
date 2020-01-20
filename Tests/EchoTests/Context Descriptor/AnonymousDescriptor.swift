@@ -1,11 +1,3 @@
-//
-//  AnonymousDescriptor.swift
-//  EchoTests
-//
-//  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
-//
-
 import XCTest
 import Echo
 

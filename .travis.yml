@@ -1,0 +1,16 @@
+language: generic
+
+matrix:
+  include:
+    - os: linux
+      dist: xenial
+      sudo: required
+      before_install:
+        - sudo apt-get install clang libicu-dev
+      install:
+        - eval "$(curl -sL https://gist.githubusercontent.com/Azoy/a723677c6cdc891e9b0ab2df1fc1d018/raw/4385d68335f4e784dfe1a3ef8f6decd5c6e856a6/swift-5.0.3-travis.sh)"
+    - os: osx
+      osx_image: xcode10.2
+
+script:
+  - swift test

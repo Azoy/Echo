@@ -3,18 +3,23 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
+/// The metadata structure that represents a metatype wrapping some instance
+/// type.
 public struct MetatypeMetadata: Metadata, LayoutWrapper {
   typealias Layout = _MetatypeMetadata
   
+  /// Backing metatype metadata pointer.
   public let ptr: UnsafeRawPointer
   
+  /// The instance type that this metatype wraps.
   public var instanceType: Any.Type {
-    layout._instanceMetadata
+    layout._instanceType
   }
   
+  /// The metadata for the instance type this metatype wraps.
   public var instanceMetadata: Metadata {
     reflect(instanceType)
   }
@@ -22,5 +27,5 @@ public struct MetatypeMetadata: Metadata, LayoutWrapper {
 
 struct _MetatypeMetadata {
   let _kind: Int
-  let _instanceMetadata: Any.Type
+  let _instanceType: Any.Type
 }

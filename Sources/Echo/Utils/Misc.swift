@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 extension _Pointer {
@@ -36,6 +36,12 @@ extension UnsafeRawPointer {
   }
 }
 
+extension UnsafePointer where Pointee == CChar {
+  var string: String {
+    String(cString: self)
+  }
+}
+
 protocol LayoutWrapper {
   associatedtype Layout
   
@@ -43,8 +49,26 @@ protocol LayoutWrapper {
 }
 
 extension LayoutWrapper {
-  public var layout: Layout {
+  var layout: Layout {
     ptr.load(as: Layout.self)
+  }
+  
+  var trailing: UnsafeRawPointer {
+    ptr + MemoryLayout<Layout>.size
+  }
+  
+  func address<T>(
+    for field: KeyPath<Layout, T>
+  ) -> UnsafePointer<T> {
+    let offset = MemoryLayout<Layout>.offset(of: field)!
+    return UnsafePointer<T>(ptr + offset)
+  }
+  
+  func address<T: RelativePointer, U>(
+    for field: KeyPath<Layout, T>
+  ) -> UnsafePointer<U> where T.Pointee == U {
+    let offset = MemoryLayout<Layout>.offset(of: field)!
+    return layout[keyPath: field].address(from: ptr + offset)
   }
 }
 

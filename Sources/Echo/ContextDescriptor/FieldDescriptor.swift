@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 /// A special descriptor that describes a type's fields.
@@ -20,13 +20,12 @@ public struct FieldDescriptor: LayoutWrapper {
   
   /// The mangled name for this field descriptor.
   public var mangledTypeName: UnsafePointer<CChar> {
-    layout._mangledTypeName.address(from: ptr)
+    address(for: \._mangledTypeName)
   }
   
   /// The superclass mangled name for a class.
   public var superclass: UnsafePointer<CChar> {
-    let offset = ptr.offset(of: 1, as: Int32.self)
-    return layout._superclass.address(from: offset)
+    address(for: \._superclass)
   }
   
   /// The kind of field descriptor this is.
@@ -49,8 +48,7 @@ public struct FieldDescriptor: LayoutWrapper {
     var result = [FieldRecord]()
     
     for i in 0 ..< numFields {
-      let address = ptr.offset(of: 4, as: Int32.self)
-                       .offset(of: i, as: _FieldRecord.self)
+      let address = trailing.offset(of: i, as: _FieldRecord.self)
       result.append(FieldRecord(ptr: address))
     }
     
@@ -87,15 +85,24 @@ public struct FieldRecord: LayoutWrapper {
   ///       let fieldType = metadata.type(of: field.mangledTypeName)
   ///     }
   public var mangledTypeName: UnsafePointer<CChar> {
-    let offset = ptr.offset(of: 1, as: Int32.self)
-    return layout._mangledTypeName.address(from: offset)
+    address(for: \._mangledTypeName)
   }
   
   /// The name of the field.
   public var name: String {
-    let offset = ptr.offset(of: 2, as: Int32.self)
-    let address = layout._fieldName.address(from: offset)
-    return String(cString: address)
+    address(for: \._fieldName).string
+  }
+  
+  /// The reference storage modifer on this field, if any.
+  public var referenceStorage: ReferenceStorageKind {
+    let fieldType = mangledTypeName.string
+    let refStorageMangle = String(fieldType.suffix(2))
+    
+    guard let kind = ReferenceStorageKind(rawValue: refStorageMangle) else {
+      return .none
+    }
+    
+    return kind
   }
 }
 

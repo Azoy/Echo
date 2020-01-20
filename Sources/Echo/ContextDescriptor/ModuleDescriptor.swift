@@ -3,18 +3,19 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
+/// A module descriptor that describes some Swift module.
 public struct ModuleDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _ModuleDescriptor
-
+  
+  /// Backing context descriptor pointer.
   public let ptr: UnsafeRawPointer
   
+  /// The name of the compiled Swift module.
   public var name: String {
-    let offset = ptr.offset(of: 2, as: Int32.self)
-    let address = layout._name.address(from: offset)
-    return String(cString: address)
+    address(for: \._name).string
   }
 }
 

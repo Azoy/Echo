@@ -3,16 +3,19 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
+// Not quite possible in Swift yet...
+
+/*
 public struct MetadataAccessFunction {
   public let ptr: UnsafeRawPointer
   
   public func call0(request: MetadataRequest) -> MetadataResponse {
     let fn = unsafeBitCast(
       ptr,
-      to: (@convention(thin) (MetadataRequest) -> MetadataResponse).self
+      to: ((MetadataRequest) -> MetadataResponse).self
     )
     return fn(request)
   }
@@ -23,8 +26,9 @@ public struct MetadataAccessFunction {
   ) -> MetadataResponse {
     let fn = unsafeBitCast(
       ptr,
-      to: (@convention(thin) (MetadataRequest, Any.Type) -> MetadataResponse).self
+      to: ((MetadataRequest, Any.Type) -> MetadataResponse).self
     )
     return fn(request, type1)
   }
 }
+*/

@@ -3,18 +3,23 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
+/// The metadata structure that represents a `class` type in Swift.
 public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   typealias Layout = _ClassMetadata
   
+  /// Backing class metadata pointer.
   public let ptr: UnsafeRawPointer
   
+  /// The class context descriptor that describes this class.
   public var descriptor: ClassDescriptor {
-    layout._descriptor
+    precondition(isSwiftClass)
+    return layout._descriptor
   }
   
+  /// The Objective-C ISA pointer, if it has one.
   public var isaPointer: UnsafeRawPointer? {
     let int = ptr.load(as: Int.self)
     guard int != 0 else {
@@ -24,19 +29,28 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     return UnsafeRawPointer(bitPattern: int)!
   }
   
+  /// The superclass type that this class inherits from, if it inherits one at
+  /// all.
   public var superclassType: Any.Type? {
     layout._superclass
   }
   
+  /// The superclass type metadata that this class inherits from, it it inherits
+  /// one at all.
   public var superclassMetadata: ClassMetadata? {
     superclassType.map { reflect($0) as! ClassMetadata }
   }
   
+  /// The specific flags that describe this class metadata.
   public var classFlags: Flags {
     layout._flags
   }
   
-  // FIXME: This isn't quite right yet...
+  // FIXME: Below isn't quite right yet... It doesn't take into account what's
+  // on disk and what's currently being run.
+  // See: https://twitter.com/slava_pestov/status/1185589328526876672
+  
+  /// Whether or not this class was defined in Swift.
   public var isSwiftClass: Bool {
     #if canImport(Darwin)
     // Xcode uses this and older runtimes do too
@@ -53,6 +67,7 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     return layout._rodata & mask != 0
   }
   
+  // An array of field offsets for this class's stored representation.
   public var fieldOffsets: [Int] {
     let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
     let buffer = UnsafeBufferPointer<UInt32>(
@@ -76,4 +91,5 @@ struct _ClassMetadata {
   let _classSize: UInt32
   let _classAddressPoint: UInt32
   let _descriptor: ClassDescriptor
+  let _ivarDestroyer: UnsafeRawPointer
 }

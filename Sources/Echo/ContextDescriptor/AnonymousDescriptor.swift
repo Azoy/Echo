@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 /// An anonymous descriptor describes a context which is anonymous, like a
@@ -25,7 +25,7 @@ public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
       return nil
     }
     
-    var offset = ptr + MemoryLayout<_ContextDescriptor>.size
+    var offset = trailing
     
     // If this context isn't generic, then the only trailing member is the
     // mangled name. Otherwise, we need to calculate how large the generic
@@ -35,6 +35,6 @@ public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
     }
   
     let address = offset.relativeDirectAddress(as: CChar.self)
-    return String(cString: address)
+    return address.string
   }
 }

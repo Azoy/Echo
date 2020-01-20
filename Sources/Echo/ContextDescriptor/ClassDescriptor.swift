@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
 /// A class descriptor that descibes some class context.
@@ -12,6 +12,17 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   
   /// Backing context descriptor pointer.
   public let ptr: UnsafeRawPointer
+  
+  /// The mangled type name for this class's superclass, if it has one.
+  public var superclass: UnsafePointer<CChar> {
+    address(for: \._superclass)
+  }
+  
+  /// The number of members this class defines. This is both properties and
+  /// methods.
+  public var numMembers: Int {
+    Int(layout._numImmediateMembers)
+  }
   
   /// The number of properties this class declares (not including superclass)
   /// properties).

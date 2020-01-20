@@ -3,8 +3,10 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
+
+// TODO: Document this mirror type.
 
 public struct EchoMirror {
   public let subjectType: Any.Type
