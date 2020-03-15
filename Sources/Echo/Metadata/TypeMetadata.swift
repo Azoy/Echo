@@ -55,14 +55,40 @@ extension TypeMetadata {
     }
   }
   
+  public var fieldOffsets: [Int] {
+    switch self {
+    case is StructMetadata:
+      return (self as! StructMetadata).fieldOffsets
+    case is ClassMetadata:
+      return (self as! ClassMetadata).fieldOffsets
+    default:
+      fatalError()
+    }
+  }
+  
   var genericArgumentPtr: UnsafeRawPointer {
     switch self {
     case is StructMetadata:
       return ptr + MemoryLayout<_StructMetadata>.size
+      
     case is EnumMetadata:
       return ptr + MemoryLayout<_EnumMetadata>.size
+      
     case is ClassMetadata:
-      return ptr + MemoryLayout<_ClassMetadata>.size
+      let classMetadata = self as! ClassMetadata
+      
+      if !classMetadata.descriptor.typeFlags.classHasResilientSuperclass {
+        if classMetadata.descriptor.typeFlags.classAreImmediateMembersNegative {
+          return ptr.offset(of: -classMetadata.descriptor.negativeSize)
+        } else {
+          return ptr.offset(of: classMetadata.descriptor.positiveSize -
+                                classMetadata.descriptor.numMembers)
+        }
+      }
+      
+      return ptr +
+        classMetadata.descriptor.resilientBounds._immediateMembersOffset
+      
     default:
       fatalError()
     }

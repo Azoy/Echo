@@ -76,3 +76,19 @@ public func swift_getTypeName(
 ) -> String {
   swift_getTypeName(for: metadata.type, qualified: qualified)
 }
+
+public func swift_conformsToProtocol(
+  type: Any.Type,
+  protocol: ProtocolDescriptor
+) -> WitnessTable? {
+  let wtPtr = swift_conformsToProtocol(
+    unsafeBitCast(type, to: UnsafeRawPointer.self),
+    `protocol`.ptr
+  )
+  
+  guard wtPtr != nil else {
+    return nil
+  }
+  
+  return WitnessTable(ptr: wtPtr!)
+}

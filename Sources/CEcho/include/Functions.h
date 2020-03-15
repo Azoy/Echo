@@ -49,4 +49,12 @@ extern void swift_deallocUninitializedObject(void *obj, size_t size,
 // void swift_release(HeapObject *obj);
 extern void swift_release(void *heapObj);
 
+//===----------------------------------------------------------------------===//
+// Protocol Conformances
+//===----------------------------------------------------------------------===//
+
+// WitnessTable *swift_conformsToProtocol(Metadata *type,
+//                                        ProtocolDescriptor *protocol);
+extern void *swift_conformsToProtocol(const void *type, const void *protocol);
+
 #endif

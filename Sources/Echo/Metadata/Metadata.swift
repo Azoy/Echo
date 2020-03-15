@@ -36,7 +36,12 @@ extension Metadata {
   
   /// The kind of metadata this is.
   public var kind: MetadataKind {
-    MetadataKind(rawValue: ptr.load(as: Int.self))!
+    // ISA pointer. Obj-C compatibile
+    guard let kind = MetadataKind(rawValue: ptr.load(as: Int.self)) else {
+      return .class
+    }
+    
+    return kind
   }
 }
 

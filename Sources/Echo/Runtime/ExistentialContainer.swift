@@ -67,6 +67,18 @@ public struct ExistentialContainer {
   /// The base any existential, also known as Any.
   public var base: AnyExistentialContainer
   
-  /// A pointer to witness table pointers.
-  public var witnessTables: UnsafePointer<UnsafePointer<Int8>>
+  /// A pointer to the witness table.
+  public var witnessTable: WitnessTable
+}
+
+/// An existential container is a type in Swift that contains some struct or
+/// class with information of what the type it's containing is, and the witness
+/// tables needed that the existential (protocol) is. Dual supports an
+/// existential that is composed of two protocols. E.g. X & Y
+public struct DualExistentialContainer {
+  /// The base any existential, also known as Any.
+  public var base: AnyExistentialContainer
+  
+  /// A pointer to witness tables.
+  public var witnessTables: (WitnessTable, WitnessTable)
 }

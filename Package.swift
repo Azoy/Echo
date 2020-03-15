@@ -25,11 +25,14 @@ let package = Package(
     ),
     .target(
       name: "EchoStoredProperties",
-      dependencies: ["Echo"]
+      dependencies: ["Echo"],
+      swiftSettings: [
+        .unsafeFlags(["-parse-stdlib"])
+      ]
     ),
     .testTarget(
       name: "EchoTests",
-      dependencies: ["Echo"]
+      dependencies: ["Echo", "EchoStoredProperties"]
     )
   ]
 )

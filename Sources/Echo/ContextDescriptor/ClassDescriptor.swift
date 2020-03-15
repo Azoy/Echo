@@ -18,6 +18,24 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
     address(for: \._superclass)
   }
   
+  /// The negative size of the metadata objects in this class.
+  public var negativeSize: Int {
+    assert(!typeFlags.classHasResilientSuperclass)
+    return Int(layout._negativeSizeOrResilientBounds)
+  }
+  
+  /// The resilient bounds for this class.
+  var resilientBounds: _StoredClassMetadataBounds {
+    address(for: \._negativeSizeOrResilientBounds).raw
+      .relativeDirectAddress(as: _StoredClassMetadataBounds.self).pointee
+  }
+  
+  /// The positive size of the metadata objects in this class.
+  public var positiveSize: Int {
+    assert(!typeFlags.classHasResilientSuperclass)
+    return Int(layout._positiveSizeOrExtraFlags)
+  }
+  
   /// The number of members this class defines. This is both properties and
   /// methods.
   public var numMembers: Int {
@@ -35,6 +53,11 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   public var fieldOffsetVectorOffset: Int {
     Int(layout._fieldOffsetVectorOffset)
   }
+}
+
+struct _StoredClassMetadataBounds {
+  let _immediateMembersOffset: Int
+  //let _bounds: MetadataBounds
 }
 
 struct _ClassDescriptor {

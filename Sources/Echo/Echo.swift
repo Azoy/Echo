@@ -19,7 +19,9 @@ public func reflect(_ type: Any.Type) -> Metadata {
 /// - Parameter instance: Any instance value to get metadata from.
 /// - Returns: Metadata for the given instance type.
 public func reflect(_ instance: Any) -> Metadata {
-  let container = unsafeBitCast(instance, to: AnyExistentialContainer.self)
-  
-  return reflect(container.type)
+  container(for: instance).metadata
+}
+
+public func container(for instance: Any) -> AnyExistentialContainer {
+  unsafeBitCast(instance, to: AnyExistentialContainer.self)
 }

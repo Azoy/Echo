@@ -92,11 +92,3 @@ struct _ProtocolRequirement {
   let _flags: ProtocolRequirement.Flags
   let _defaultImpl: RelativeDirectPointer<()>
 }
-
-// TODO: Implement image scanner to find all conformances within a process...
-struct _ProtocolConformanceDescriptor {
-  let _protocol: RelativeIndirectablePointer<_ProtocolDescriptor>
-  let _typeRef: Int32
-  let _witnessTablePattern: RelativeDirectPointer<Int>
-  //let _flags:
-}

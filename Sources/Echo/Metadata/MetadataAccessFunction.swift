@@ -12,6 +12,13 @@
 public struct MetadataAccessFunction {
   public let ptr: UnsafeRawPointer
   
+  public func callAsFunction(
+    request: MetadataRequest,
+    args: Any.Type...
+  ) -> MetadataResponse {
+    
+  }
+ 
   public func call0(request: MetadataRequest) -> MetadataResponse {
     let fn = unsafeBitCast(
       ptr,
