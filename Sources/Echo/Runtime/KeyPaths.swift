@@ -155,7 +155,14 @@ extension KeyPathObject: CustomStringConvertible {
           result += "\(fieldName)."
           
           let fieldType = currentRoot.type(of: field.mangledTypeName)!
-          currentRoot = reflect(fieldType) as! TypeMetadata
+          
+          // If the field type is not a nominal type, then this is our last
+          // component.
+          guard let newRoot = reflect(fieldType) as? TypeMetadata else {
+            break
+          }
+          
+          currentRoot = newRoot
           fields = currentRoot.contextDescriptor.fields
           fieldOffsets = currentRoot.fieldOffsets
         }

@@ -29,7 +29,7 @@ extension Reflection {
   }
   
   public static func allKeyPaths<T>(for instance: T) -> [PartialKeyPath<T>] {
-    allKeyPaths(for: type(of: instance))
+    allKeyPaths(for: T.self)
   }
   
   public static func allNamedKeyPaths<T>(
@@ -53,6 +53,6 @@ extension Reflection {
   public static func allNamedKeyPaths<T>(
     for instance: T
   ) -> [String: PartialKeyPath<T>] {
-    allNamedKeyPaths(for: type(of: instance))
+    allNamedKeyPaths(for: T.self)
   }
 }
