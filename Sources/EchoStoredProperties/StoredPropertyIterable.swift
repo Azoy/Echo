@@ -12,7 +12,7 @@ import Echo
 public enum Reflection {}
 
 extension Reflection {
-  public static func allKeyPaths<T>(for type: T.Type) -> [PartialKeyPath<T>] {
+  public static func allStoredPropertyKeyPaths<T>(for type: T.Type) -> [PartialKeyPath<T>] {
     guard let metadata = reflect(type) as? TypeMetadata,
           metadata.kind == .struct || metadata.kind == .class else {
       return []
@@ -28,11 +28,11 @@ extension Reflection {
     return result
   }
   
-  public static func allKeyPaths<T>(for instance: T) -> [PartialKeyPath<T>] {
-    allKeyPaths(for: T.self)
+  public static func allStoredPropertyKeyPaths<T>(for instance: T) -> [PartialKeyPath<T>] {
+    allStoredPropertyKeyPaths(for: T.self)
   }
   
-  public static func allNamedKeyPaths<T>(
+  public static func allNamedStoredPropertyKeyPaths<T>(
     for type: T.Type
   ) -> [String: PartialKeyPath<T>] {
     guard let metadata = reflect(type) as? TypeMetadata,
@@ -50,9 +50,9 @@ extension Reflection {
     return result
   }
   
-  public static func allNamedKeyPaths<T>(
+  public static func allNamedStoredPropertyKeyPaths<T>(
     for instance: T
   ) -> [String: PartialKeyPath<T>] {
-    allNamedKeyPaths(for: T.self)
+    allNamedStoredPropertyKeyPaths(for: T.self)
   }
 }
