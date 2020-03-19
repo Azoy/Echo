@@ -1,5 +1,5 @@
 //
-//  StoredProperties.swift
+//  StoredProperty.swift
 //  Echo
 //
 //  Created by Alejandro Alonso
@@ -10,6 +10,14 @@
 
 import Swift
 import Echo
+
+extension MemoryLayout {
+  public struct StoredProperty {
+    public let name: String
+    public let type: Any.Type
+    public let referenceStorage: ReferenceStorageKind
+  }
+}
 
 extension MemoryLayout {
   public static var storedProperties: [StoredProperty] {
@@ -25,13 +33,5 @@ extension MemoryLayout {
         referenceStorage: $0.referenceStorage
       )
     }
-  }
-}
-
-extension MemoryLayout {
-  public struct StoredProperty {
-    public let name: String
-    public let type: Any.Type
-    public let referenceStorage: ReferenceStorageKind
   }
 }

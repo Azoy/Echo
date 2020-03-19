@@ -1,5 +1,5 @@
 //
-//  StoredPropertyIterable.swift
+//  StoredPropertyIteration.swift
 //  Echo
 //
 //  Created by Alejandro Alonso

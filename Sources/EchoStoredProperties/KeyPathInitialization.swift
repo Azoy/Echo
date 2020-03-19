@@ -1,5 +1,5 @@
 //
-//  KeyPathInit.swift
+//  KeyPathInitialization.swift
 //  Echo
 //
 //  Created by Alejandro Alonso
