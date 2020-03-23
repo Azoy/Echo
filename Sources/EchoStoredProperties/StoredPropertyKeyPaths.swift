@@ -27,11 +27,7 @@ extension Reflection {
     
     return result
   }
-  
-  public static func allStoredPropertyKeyPaths<T>(for instance: T) -> [PartialKeyPath<T>] {
-    allStoredPropertyKeyPaths(for: T.self)
-  }
-  
+
   public static func allNamedStoredPropertyKeyPaths<T>(
     for type: T.Type
   ) -> [String: PartialKeyPath<T>] {
@@ -48,11 +44,5 @@ extension Reflection {
     }
     
     return result
-  }
-  
-  public static func allNamedStoredPropertyKeyPaths<T>(
-    for instance: T
-  ) -> [String: PartialKeyPath<T>] {
-    allNamedStoredPropertyKeyPaths(for: T.self)
   }
 }
