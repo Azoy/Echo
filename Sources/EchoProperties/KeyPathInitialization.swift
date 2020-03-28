@@ -1,5 +1,5 @@
 //
-//  KeyPathInit.swift
+//  KeyPathInitialization.swift
 //  Echo
 //
 //  Created by Alejandro Alonso
@@ -63,9 +63,7 @@ func getKeyPathType(
   for leaf: FieldRecord
 ) -> AnyKeyPath.Type {
   let leafTy = root.type(of: leaf.mangledTypeName)!
-  
-  var result: AnyKeyPath.Type
-  
+
   func openRoot<Root>(_: Root.Type) -> AnyKeyPath.Type {
     func openLeaf<Value>(_: Value.Type) -> AnyKeyPath.Type {
       switch root.kind {

@@ -7,7 +7,7 @@ let package = Package(
   products: [
     .library(
       name: "Echo",
-      targets: ["Echo", "EchoMirror", "EchoStoredProperties"]
+      targets: ["Echo", "EchoMirror", "EchoProperties"]
     )
   ],
   targets: [
@@ -24,7 +24,7 @@ let package = Package(
       dependencies: ["Echo"]
     ),
     .target(
-      name: "EchoStoredProperties",
+      name: "EchoProperties",
       dependencies: ["Echo"],
       swiftSettings: [
         .unsafeFlags(["-parse-stdlib"])
@@ -32,7 +32,7 @@ let package = Package(
     ),
     .testTarget(
       name: "EchoTests",
-      dependencies: ["Echo", "EchoStoredProperties"]
+      dependencies: ["Echo", "EchoProperties"]
     )
   ]
 )
