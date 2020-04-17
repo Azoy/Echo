@@ -8,7 +8,6 @@
 
 // TODO: Document the following extension to MemoryLayout
 
-import Swift
 import Echo
 
 extension MemoryLayout {

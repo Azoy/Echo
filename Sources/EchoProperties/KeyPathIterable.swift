@@ -1,4 +1,3 @@
-import Swift
 import Echo
 
 // - MARK: `KeyPathIterable` protocol
