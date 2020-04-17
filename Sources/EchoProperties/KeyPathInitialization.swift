@@ -14,9 +14,8 @@ func _instantiateKeyPathBuffer(
   _ leafIndex: Int,
   _ origDestData: UnsafeMutableRawBufferPointer
 ) {
-  let destHeaderPtr = origDestData.baseAddress.unsafelyUnwrapped
   let destData = UnsafeMutableRawBufferPointer(
-    start: destHeaderPtr.advanced(by: MemoryLayout<Int>.size),
+    start: origDestData.baseAddress! + MemoryLayout<Int>.size,
     count: origDestData.count - MemoryLayout<Int>.size
   )
   
@@ -48,13 +47,33 @@ extension AnyKeyPath {
   ) -> Self {
     assert(bytes > 0 && bytes % 4 == 0,
            "capacity must be multiple of 4 bytes")
-    let result = Builtin.allocWithTailElems_1(self, (bytes/4)._builtinWordValue,
-                                              Int32.self)
-    //result._kvcKeyPathStringPtr = nil
-    let base = UnsafeMutableRawPointer(Builtin.projectTailElems(result,
-                                                                Int32.self))
+    let metadata = reflect(self) as! ClassMetadata
+    var size = metadata.instanceSize
+    
+    let tailStride = MemoryLayout<Int32>.stride
+    let tailAlignMask = MemoryLayout<Int32>.alignment - 1
+    
+    size += tailAlignMask
+    size &= ~tailAlignMask
+    size += tailStride * (bytes / 4)
+    
+    let alignment = metadata.instanceAlignmentMask | tailAlignMask
+    
+    let object = swift_allocObject(
+      for: metadata,
+      size: size,
+      alignmentMask: alignment
+    )
+    
+    guard object != nil else {
+      fatalError("Allocating \(self) instance failed")
+    }
+    
+    let base = UnsafeMutableRawPointer(mutating: object!.successor())
+    
     body(UnsafeMutableRawBufferPointer(start: base, count: bytes))
-    return result
+    
+    return unsafeBitCast(object, to: self)
   }
 }
 

@@ -43,6 +43,18 @@ public func swift_projectBox(
   swift_projectBox(heapObj.raw.mutable)!.raw
 }
 
+public func swift_allocObject(
+  for type: ClassMetadata,
+  size: Int,
+  alignmentMask: Int
+) -> UnsafePointer<HeapObject>? {
+  if let object = swift_allocObject(type.ptr.mutable, size, alignmentMask) {
+    return UnsafePointer<HeapObject>(object)
+  }
+  
+  return nil
+}
+
 public func swift_release(_ heapObj: UnsafePointer<HeapObject>) {
   swift_release(heapObj.raw.mutable)
 }
