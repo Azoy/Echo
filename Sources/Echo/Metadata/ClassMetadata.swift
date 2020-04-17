@@ -64,10 +64,25 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     let mask = 0x1
     #endif
     
-    return layout._rodata & mask != 0
+    return Int(bitPattern: layout._rodata) & mask != 0
   }
   
-  // An array of field offsets for this class's stored representation.
+  /// The address point for instances of this type.
+  public var instanceAddressPoint: Int {
+    Int(layout._instanceAddressPoint)
+  }
+  
+  /// The required size of instances of this type.
+  public var instanceSize: Int {
+    Int(layout._instanceSize)
+  }
+  
+  /// The alignment mask of the address point for instances of this type.
+  public var instanceAlignmentMask: Int {
+    Int(layout._instanceAlignMask)
+  }
+  
+  /// An array of field offsets for this class's stored representation.
   public var fieldOffsets: [Int] {
     let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
     let buffer = UnsafeBufferPointer<UInt32>(
@@ -82,7 +97,7 @@ struct _ClassMetadata {
   let _kind: Int
   let _superclass: Any.Type?
   let _reserved: (Int, Int)
-  let _rodata: Int
+  let _rodata: UnsafeRawPointer
   let _flags: ClassMetadata.Flags
   let _instanceAddressPoint: UInt32
   let _instanceSize: UInt32

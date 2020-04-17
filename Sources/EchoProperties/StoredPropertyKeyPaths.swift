@@ -6,7 +6,6 @@
 //  Copyright © 2020 Alejandro Alonso. All rights reserved.
 //
 
-import Swift
 import Echo
 
 public enum Reflection {}

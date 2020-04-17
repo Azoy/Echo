@@ -25,10 +25,7 @@ let package = Package(
     ),
     .target(
       name: "EchoProperties",
-      dependencies: ["Echo"],
-      swiftSettings: [
-        .unsafeFlags(["-parse-stdlib"])
-      ]
+      dependencies: ["Echo"]
     ),
     .testTarget(
       name: "EchoTests",
