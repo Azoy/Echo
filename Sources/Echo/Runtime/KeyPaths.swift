@@ -145,7 +145,7 @@ extension KeyPathObject: CustomStringConvertible {
     var currentRoot = reflect(root) as! TypeMetadata
     var fields = currentRoot.contextDescriptor.fields
     var fieldOffsets = currentRoot.fieldOffsets
-    var result = "\(root)."
+    var result = "\\\(root)."
     
     for component in components {
       for (i, fieldOffset) in fieldOffsets.enumerated() {
@@ -172,6 +172,12 @@ extension KeyPathObject: CustomStringConvertible {
     result.removeLast()
     
     return result
+  }
+}
+
+extension AnyKeyPath: CustomStringConvertible {
+  public var description: String {
+    keyPathObject.description
   }
 }
 

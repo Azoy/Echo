@@ -81,16 +81,6 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   public var instanceAlignmentMask: Int {
     Int(layout._instanceAlignMask)
   }
-  
-  /// An array of field offsets for this class's stored representation.
-  public var fieldOffsets: [Int] {
-    let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
-    let buffer = UnsafeBufferPointer<UInt32>(
-      start: UnsafePointer<UInt32>(start),
-      count: descriptor.numFields
-    )
-    return Array(buffer).map { Int($0) }
-  }
 }
 
 struct _ClassMetadata {

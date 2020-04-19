@@ -6,6 +6,7 @@ final class EchoTests: XCTestCase {
     ("testAnonymousDescriptor", testAnonymousDescriptor),
     ("testClassDescriptor", testClassDescriptor),
     ("testEnumDescriptor", testEnumDescriptor),
+    ("testModuleDescriptor", testModuleDescriptor),
     ("testExtensionDescriptor", testExtensionDescriptor)
   ]
 }

@@ -101,7 +101,15 @@ func getKeyPathType(
   return _openExistential(root.type, do: openRoot)
 }
 
+var createdKeyPathCache = [UnsafeRawPointer: [Int: AnyKeyPath]]()
+
 func createKeyPath(root: TypeMetadata, leaf: Int) -> AnyKeyPath {
+  if let cachedType = createdKeyPathCache[root.ptr] {
+    if let cachedKeyPath = cachedType[leaf] {
+      return cachedKeyPath
+    }
+  }
+  
   let field = root.contextDescriptor.fields.records[leaf]
   
   let keyPathTy = getKeyPathType(from: root, for: field)
@@ -110,5 +118,7 @@ func createKeyPath(root: TypeMetadata, leaf: Int) -> AnyKeyPath {
   }
 
   let heapObj = UnsafeRawPointer(Unmanaged.passRetained(instance).toOpaque())
-  return unsafeBitCast(heapObj, to: AnyKeyPath.self)
+  let keyPath = unsafeBitCast(heapObj, to: AnyKeyPath.self)
+  createdKeyPathCache[root.ptr, default: [:]][leaf] = keyPath
+  return keyPath
 }
