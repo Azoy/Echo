@@ -57,29 +57,14 @@ extension TypeMetadata {
   
   /// An array of field offsets for this type's stored representation.
   public var fieldOffsets: [Int] {
-    let start: UnsafeRawPointer
-    let numFields: Int
-    
     switch self {
     case let structMetadata as StructMetadata:
-      start = ptr.offset(
-        of: structMetadata.descriptor.fieldOffsetVectorOffset
-      )
-      numFields = structMetadata.descriptor.numFields
+      return structMetadata.fieldOffsets
     case let classMetadata as ClassMetadata:
-      start = ptr.offset(
-        of: classMetadata.descriptor.fieldOffsetVectorOffset
-      )
-      numFields = classMetadata.descriptor.numFields
+      return classMetadata.fieldOffsets
     default:
       fatalError()
     }
-    
-    let buffer = UnsafeBufferPointer<UInt32>(
-      start: UnsafePointer<UInt32>(start),
-      count: numFields
-    )
-    return Array(buffer).map { Int($0) }
   }
   
   var genericArgumentPtr: UnsafeRawPointer {
