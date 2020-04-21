@@ -70,6 +70,9 @@ extension AnyKeyPath {
     
     let base = UnsafeMutableRawPointer(mutating: object!.successor())
     
+    // The first word is the kvc string pointer. Set it to 0.
+    base.storeBytes(of: 0, as: Int.self)
+    
     body(UnsafeMutableRawBufferPointer(start: base, count: bytes))
     
     return unsafeBitCast(object, to: self)
