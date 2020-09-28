@@ -27,32 +27,15 @@ extension ContextDescriptor {
   
   /// The parent context which this context descriptor resides in.
   public var parent: ContextDescriptor? {
+    guard !_descriptor._parent.isNull else {
+      return nil
+    }
+    
     let offset = ptr.offset(of: 1, as: Int32.self)
     
-    guard let _parent = _descriptor._parent.pointee(from: offset) else {
-      return nil
-    }
-    
-    let ptr = _descriptor._parent.address(from: offset).raw
-    
-    switch _parent._flags.kind {
-    case .anonymous:
-      return AnonymousDescriptor(ptr: ptr)
-    case .class:
-      return ClassDescriptor(ptr: ptr)
-    case .enum:
-      return EnumDescriptor(ptr: ptr)
-    case .extension:
-      return ExtensionDescriptor(ptr: ptr)
-    case .module:
-      return ModuleDescriptor(ptr: ptr)
-    case .protocol:
-      return ProtocolDescriptor(ptr: ptr)
-    case .struct:
-      return StructDescriptor(ptr: ptr)
-    default:
-      return nil
-    }
+    return getContextDescriptor(
+      at: _descriptor._parent.address(from: offset).raw
+    )
   }
   
   var genericContextOffset: Int {
@@ -90,4 +73,29 @@ extension ContextDescriptor {
 struct _ContextDescriptor {
   let _flags: ContextDescriptorFlags
   let _parent: RelativeIndirectablePointer<_ContextDescriptor>
+}
+
+func getContextDescriptor(
+  at ptr: UnsafeRawPointer
+) -> ContextDescriptor {
+  let flags = ptr.load(as: ContextDescriptorFlags.self)
+  
+  switch flags.kind {
+  case .anonymous:
+    return AnonymousDescriptor(ptr: ptr)
+  case .class:
+    return ClassDescriptor(ptr: ptr)
+  case .enum:
+    return EnumDescriptor(ptr: ptr)
+  case .extension:
+    return ExtensionDescriptor(ptr: ptr)
+  case .module:
+    return ModuleDescriptor(ptr: ptr)
+  case .opaqueType:
+    return OpaqueDescriptor(ptr: ptr)
+  case .protocol:
+    return ProtocolDescriptor(ptr: ptr)
+  case .struct:
+    return StructDescriptor(ptr: ptr)
+  }
 }

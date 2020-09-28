@@ -22,6 +22,12 @@ public protocol TypeContextDescriptor: ContextDescriptor {
   /// The field descriptor that describes the stored representation of this
   /// type.
   var fields: FieldDescriptor { get }
+  
+  /// If this type has foreign metadata initialization, return it.
+  var foreignMetadataInitialization: ForeignMetadataInitialization? { get }
+  
+  /// If this type has singleton metadata initialization, return it.
+  var singletonMetadataInitialization: SingletonMetadataInitialization? { get }
 }
 
 extension TypeContextDescriptor {
@@ -66,9 +72,41 @@ extension TypeContextDescriptor {
   }
 }
 
+/// Structure that contains the completion function for initializing singleton
+/// foreign metadata.
+public struct ForeignMetadataInitialization: LayoutWrapper {
+  typealias Layout = _ForeignMetadataInitialization
+  
+  /// Backing ForeignMetadataInitialzation pointer.
+  public let ptr: UnsafeRawPointer
+}
+
+/// Structure that contains information needed to perform initialization of
+/// singleton value metadata.
+public struct SingletonMetadataInitialization: LayoutWrapper {
+  typealias Layout = _SingletonMetadataInitialization
+  
+  /// Backing SingletonMetadataInitialization pointer.
+  public let ptr: UnsafeRawPointer
+}
+
 struct _TypeDescriptor {
   let _base: _ContextDescriptor
   let _name: RelativeDirectPointer<CChar>
   let _accessor: RelativeDirectPointer<UnsafeRawPointer>
   let _fields: RelativeDirectPointer<_FieldDescriptor>
+}
+
+struct _ForeignMetadataInitialization {
+  let _completionFunc: RelativeDirectPointer<UnsafeRawPointer>
+}
+
+struct _SingletonMetadataInitialization {
+  let _initializationCache: RelativeDirectPointer<Void>
+  
+  // This is either a relative direct pointer to some incomplete metadata, or
+  // a relative direct pointer to some resilent class metadata pattern.
+  let _incompleteMetadataOrResilientPattern: Int32
+  
+  let _completionFunc: RelativeDirectPointer<UnsafeRawPointer>
 }

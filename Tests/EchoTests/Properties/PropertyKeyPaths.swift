@@ -18,7 +18,7 @@ private struct Struct<T: Equatable> {
 func assertNamedKeyPathsEqual<Root>(
   _ actual: [(name: String, keyPath: PartialKeyPath<Root>)],
   _ expected: [(name: String, keyPath: PartialKeyPath<Root>)],
-  file: StaticString = #file,
+  file: StaticString = #filePath,
   line: UInt = #line
 ) {
   for (actual, expected) in zip(actual, expected) {

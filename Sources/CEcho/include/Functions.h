@@ -9,6 +9,7 @@
 #ifndef SWIFT_RUNTIME_FUNCTIONS
 #define SWIFT_RUNTIME_FUNCTIONS
 
+#include <stdbool.h>
 #include <stddef.h>
 
 //===----------------------------------------------------------------------===//
@@ -49,6 +50,9 @@ extern void swift_deallocUninitializedObject(void *obj, size_t size,
 // void swift_release(HeapObject *obj);
 extern void swift_release(void *heapObj);
 
+// HeapObject *swift_weakLoadStrong(WeakReference *weakRef);
+extern void *swift_weakLoadStrong(void *weakRef);
+
 //===----------------------------------------------------------------------===//
 // Protocol Conformances
 //===----------------------------------------------------------------------===//
@@ -56,5 +60,15 @@ extern void swift_release(void *heapObj);
 // WitnessTable *swift_conformsToProtocol(Metadata *type,
 //                                        ProtocolDescriptor *protocol);
 extern void *swift_conformsToProtocol(const void *type, const void *protocol);
+
+//===----------------------------------------------------------------------===//
+// Casting
+//===----------------------------------------------------------------------===//
+
+// bool swift_dynamicCast(OpaqueValue *dest, OpaqueValue *src,
+//                        const Metadata *srcType, const Metadata *targetType,
+//                        DynamicCastFlags flags);
+extern bool swift_dynamicCast(void *dest, void *src, const void *srcType,
+                              const void *targetType, size_t flags);
 
 #endif

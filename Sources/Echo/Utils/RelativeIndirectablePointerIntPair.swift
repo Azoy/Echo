@@ -29,7 +29,7 @@ struct RelativeIndirectablePointerIntPair<
   }
   
   func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
-    if offset == 0 {
+    if isNull {
       return nil
     }
     

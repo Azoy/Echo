@@ -29,6 +29,10 @@ protocol RelativePointer {
 }
 
 extension RelativePointer {
+  var isNull: Bool {
+    offset == 0
+  }
+  
   func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee> {
     UnsafePointer<Pointee>(ptr + Int(offset))
   }

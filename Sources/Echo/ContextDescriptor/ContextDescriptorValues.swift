@@ -95,6 +95,34 @@ extension FieldRecord {
   }
 }
 
+extension GenericMetadataPattern {
+  /// Flags that describe this generic metadata pattern.
+  public struct Flags {
+    /// Flags as represented in bits.
+    public let bits: UInt32
+    
+    /// Whether or not this metadata pattern has an extra pattern.
+    public var hasExtraDataPattern: Bool {
+      bits & 0x1 != 0
+    }
+    
+    /// Whether or not the metadata of this pattern have trailing flags.
+    public var hasTrailingFlags: Bool {
+      bits & 0x2 != 0
+    }
+    
+    /// The kind of metadata this value metadata pattern is.
+    public var valueMetadataKind: MetadataKind {
+      return MetadataKind(rawValue: Int(bits >> 21))!
+    }
+    
+    /// Whether or not this class pattern has an immediate member pattern.
+    public var classHasImmediateMembersPattern: Bool {
+      bits & (0x1 << 30) != 0
+    }
+  }
+}
+
 /// A discriminator to determine what type of parameter a generic parameter is.
 public enum GenericParameterKind: UInt8 {
   case type = 0x0
@@ -158,6 +186,41 @@ extension GenericRequirementDescriptor {
 /// A discriminator to determine what layout a layout requirement has.
 public enum GenericRequirementLayoutKind: UInt32 {
   case `class` = 0
+}
+
+extension MethodDescriptor {
+  /// Flags that describe a method descriptor.
+  public struct Flags {
+    /// Flags as represented in bits.
+    public let bits: UInt32
+    
+    /// The kind of method this is.
+    public var kind: Kind {
+      Kind(rawValue: UInt8(bits & 0xF))!
+    }
+    
+    /// Whether or not this method is an instance method.
+    public var isInstance: Bool {
+      bits & 0x10 != 0
+    }
+    
+    /// Whether or not this method is dynamic.
+    public var isDynamic: Bool {
+      bits & 0x20 != 0
+    }
+  }
+}
+
+extension MethodDescriptor {
+  /// A discriminator to indicate what kind of method a method descriptor is.
+  public enum Kind: UInt8 {
+    case method
+    case `init`
+    case getter
+    case setter
+    case modifyCoroutine
+    case readCoroutine
+  }
 }
 
 extension ProtocolDescriptor {

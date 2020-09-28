@@ -95,7 +95,25 @@ public struct FieldRecord: LayoutWrapper {
   
   /// The reference storage modifer on this field, if any.
   public var referenceStorage: ReferenceStorageKind {
-    let fieldType = mangledTypeName.string
+    var fieldTypePtr = mangledTypeName
+    
+    let firstChar = fieldTypePtr.pointee
+
+    // If the field name begins with a relative address, skip over that.
+    if firstChar >= 0x1 && firstChar <= 0x1F {
+      // Skip the first character.
+      fieldTypePtr += 1
+      
+      // Skip over the relative address depending on what the first character is.
+      // You can find something similar in Utils/Misc.swift.
+      if firstChar >= 0x1 && firstChar <= 0x17 {
+        fieldTypePtr += 4
+      } else {
+        fieldTypePtr += MemoryLayout<Int>.size
+      }
+    }
+    
+    let fieldType = fieldTypePtr.string
     let refStorageMangle = String(fieldType.suffix(2))
     
     guard let kind = ReferenceStorageKind(rawValue: refStorageMangle) else {

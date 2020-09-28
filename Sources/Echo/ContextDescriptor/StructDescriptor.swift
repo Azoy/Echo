@@ -27,6 +27,38 @@ public struct StructDescriptor: TypeContextDescriptor, LayoutWrapper {
   public var fieldOffsetVectorOffset: Int {
     Int(layout._fieldOffsetVectorOffset)
   }
+  
+  /// The foreign metadata initialization info for this struct metadata, if it
+  /// has any.
+  public var foreignMetadataInitialization: ForeignMetadataInitialization? {
+    guard typeFlags.metadataInitKind == .foreign else {
+      return nil
+    }
+    
+    var offset = 0
+    
+    if flags.isGeneric {
+      offset += typeGenericContext.size
+    }
+    
+    return ForeignMetadataInitialization(ptr: trailing + offset)
+  }
+  
+  /// The singleton metadata initialization info for this struct metadata, if it
+  /// has any.
+  public var singletonMetadataInitialization: SingletonMetadataInitialization? {
+    guard typeFlags.metadataInitKind == .singleton else {
+      return nil
+    }
+    
+    var offset = 0
+    
+    if flags.isGeneric {
+      offset += typeGenericContext.size
+    }
+    
+    return SingletonMetadataInitialization(ptr: trailing + offset)
+  }
 }
 
 struct _StructDescriptor {

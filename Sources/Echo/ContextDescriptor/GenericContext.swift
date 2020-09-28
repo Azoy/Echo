@@ -165,12 +165,31 @@ public struct TypeGenericContext: LayoutWrapper {
     baseContext.requirements
   }
   
+  /// The instantiation pattern for this type generic context.
+  public var genericMetadataPattern: GenericMetadataPattern {
+    let ptr = address(for: \._defaultInstantiationPattern).raw
+    return GenericMetadataPattern(ptr: ptr)
+  }
+  
   /// Number of bytes this type generic context is.
   public var size: Int {
     let base = baseContext.size
     let type = MemoryLayout<_TypeGenericContextDescriptorHeader>.size -
                MemoryLayout<_GenericContextDescriptorHeader>.size
     return base + type
+  }
+}
+
+/// An instantiation pattern for metadata.
+public struct GenericMetadataPattern: LayoutWrapper {
+  typealias Layout = _GenericMetadataPattern
+  
+  /// Backing GenericMetadataPattern pointer.
+  let ptr: UnsafeRawPointer
+  
+  /// The flags that represent this instantiation pattern.
+  public var flags: Flags {
+    layout._flags
   }
 }
 
@@ -196,6 +215,12 @@ struct _GenericRequirementDescriptor {
 struct _TypeGenericContextDescriptorHeader {
   // Private data for the runtime only.
   let _instantiationCache: RelativeDirectPointer<UnsafeRawPointer>
-  let _defaultInstantiationPattern: RelativeDirectPointer<Int>
+  let _defaultInstantiationPattern: RelativeDirectPointer<_GenericMetadataPattern>
   let _base: _GenericContextDescriptorHeader
+}
+
+struct _GenericMetadataPattern {
+  let _instantiationFunction: RelativeDirectPointer<UnsafeRawPointer>
+  let _completionFunction: RelativeDirectPointer<UnsafeRawPointer>
+  let _flags: GenericMetadataPattern.Flags
 }

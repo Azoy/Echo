@@ -40,6 +40,38 @@ public struct EnumDescriptor: TypeContextDescriptor, LayoutWrapper {
   public var numCases: Int {
     numEmptyCases + numPayloadCases
   }
+  
+  /// The foreign metadata initialization info for this enum metadata, if it
+  /// has any.
+  public var foreignMetadataInitialization: ForeignMetadataInitialization? {
+    guard typeFlags.metadataInitKind == .foreign else {
+      return nil
+    }
+    
+    var offset = 0
+    
+    if flags.isGeneric {
+      offset += typeGenericContext.size
+    }
+    
+    return ForeignMetadataInitialization(ptr: trailing + offset)
+  }
+  
+  /// The singleton metadata initialization info for this enum metadata, if it
+  /// has any.
+  public var singletonMetadataInitialization: SingletonMetadataInitialization? {
+    guard typeFlags.metadataInitKind == .singleton else {
+      return nil
+    }
+    
+    var offset = 0
+    
+    if flags.isGeneric {
+      offset += typeGenericContext.size
+    }
+    
+    return SingletonMetadataInitialization(ptr: trailing + offset)
+  }
 }
 
 struct _EnumDescriptor {
