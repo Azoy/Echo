@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// Represents a descriptor for an opaque type.
@@ -20,21 +20,21 @@ public struct OpaqueDescriptor: ContextDescriptor, LayoutWrapper {
   
   /// An array of mangled type names of the underlying types composing this
   /// opaque type.
-  public var underlyingTypeMangledNames: [UnsafePointer<CChar>] {
-    var result = [UnsafePointer<CChar>]()
-    
-    var start = trailing
-    
-    if flags.isGeneric {
-      start += genericContext!.size
+  public var underlyingTypeMangledNames: [UnsafeRawPointer] {
+    Array(unsafeUninitializedCapacity: numUnderlyingTypes) {
+      var start = trailing
+      
+      if flags.isGeneric {
+        start += genericContext!.size
+      }
+      
+      for i in 0 ..< numUnderlyingTypes {
+        let address = start.offset(of: i, as: RelativeDirectPointer<CChar>.self)
+        $0[i] = address.relativeDirectAddress(as: CChar.self)
+      }
+      
+      $1 = numUnderlyingTypes
     }
-    
-    for i in 0 ..< numUnderlyingTypes {
-      let address = start + i * MemoryLayout<RelativeDirectPointer<CChar>>.size
-      result.append(address.relativeDirectAddress(as: CChar.self))
-    }
-    
-    return result
   }
 }
 

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents an `enum` type in Swift.
@@ -15,11 +15,11 @@ public struct EnumMetadata: TypeMetadata, LayoutWrapper {
   
   /// The enum context descriptor that describes this enum.
   public var descriptor: EnumDescriptor {
-    layout._descriptor
+    EnumDescriptor(ptr: layout._descriptor.signed)
   }
 }
 
 struct _EnumMetadata {
   let _kind: Int
-  let _descriptor: EnumDescriptor
+  let _descriptor: SignedPointer<EnumDescriptor>
 }

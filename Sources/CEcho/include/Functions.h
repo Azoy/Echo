@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 #ifndef SWIFT_RUNTIME_FUNCTIONS
@@ -11,6 +11,14 @@
 
 #include <stdbool.h>
 #include <stddef.h>
+
+//===----------------------------------------------------------------------===//
+// Pointer Authentication
+//===----------------------------------------------------------------------===//
+
+#if defined(__arm64e__)
+const void *__ptrauth_strip_asda(const void *ptr);
+#endif
 
 //===----------------------------------------------------------------------===//
 // Box Functions
@@ -70,5 +78,15 @@ extern void *swift_conformsToProtocol(const void *type, const void *protocol);
 //                        DynamicCastFlags flags);
 extern bool swift_dynamicCast(void *dest, void *src, const void *srcType,
                               const void *targetType, size_t flags);
+
+//===----------------------------------------------------------------------===//
+// Obj-C Support
+//===----------------------------------------------------------------------===//
+
+#if defined(__OBJC__)
+#include <objc/runtime.h>
+
+extern Class swift_getInitializedObjCClass(Class c);
+#endif
 
 #endif

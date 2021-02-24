@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a function type in Swift.
@@ -30,11 +30,18 @@ public struct FunctionMetadata: Metadata, LayoutWrapper {
   
   /// An array of parameter types for this function.
   public var paramTypes: [Any.Type] {
-    let buffer = UnsafeBufferPointer<Any.Type>(
-      start: UnsafePointer<Any.Type>(trailing),
-      count: flags.numParams
-    )
-    return Array(buffer)
+    Array(unsafeUninitializedCapacity: flags.numParams) {
+      for i in 0 ..< flags.numParams {
+        let type = trailing.load(
+          fromByteOffset: i * MemoryLayout<Any.Type>.size,
+          as: Any.Type.self
+        )
+        
+        $0[i] = type
+      }
+      
+      $1 = flags.numParams
+    }
   }
   
   /// An array of parameter type metadata for this function.
@@ -44,15 +51,23 @@ public struct FunctionMetadata: Metadata, LayoutWrapper {
   
   /// An array of parameter flags that describe each parameter for this
   /// function, if any.
-  public var paramFlags: [ParamFlags]? {
-    guard flags.hasParamFlags else { return nil }
+  public var paramFlags: [ParamFlags] {
+    guard flags.hasParamFlags else { return [] }
     
-    let start = trailing.offset(of: flags.numParams)
-    let buffer = UnsafeBufferPointer<ParamFlags>(
-      start: UnsafePointer<ParamFlags>(start),
-      count: flags.numParams
-    )
-    return Array(buffer)
+    return Array(unsafeUninitializedCapacity: flags.numParams) {
+      let start = trailing.offset(of: flags.numParams)
+      
+      for i in 0 ..< flags.numParams {
+        let paramFlag = start.load(
+          fromByteOffset: i * MemoryLayout<ParamFlags>.stride,
+          as: ParamFlags.self
+        )
+        
+        $0[i] = paramFlag
+      }
+      
+      $1 = flags.numParams
+    }
   }
 }
 

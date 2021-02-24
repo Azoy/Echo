@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 struct RelativeIndirectPointer<T>: RelativePointer {
@@ -16,6 +16,6 @@ struct RelativeIndirectPointer<T>: RelativePointer {
       return nil
     }
     
-    return address(from: ptr).pointee
+    return address(from: ptr).load(as: Pointee.self)
   }
 }

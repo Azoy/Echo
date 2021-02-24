@@ -3,8 +3,15 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
+
+import Atomics
+
+#if canImport(ObjectiveC)
+import ObjectiveC
+import CEcho
+#endif
 
 /// A class descriptor that descibes some class context.
 public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
@@ -14,7 +21,7 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   public let ptr: UnsafeRawPointer
   
   /// The mangled type name for this class's superclass, if it has one.
-  public var superclass: UnsafePointer<CChar> {
+  public var superclass: UnsafeRawPointer {
     address(for: \._superclass)
   }
   
@@ -25,9 +32,12 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   }
   
   /// The resilient bounds for this class.
-  var resilientBounds: _StoredClassMetadataBounds {
-    address(for: \._negativeSizeOrResilientBounds).raw
-      .relativeDirectAddress(as: _StoredClassMetadataBounds.self).pointee
+  var resilientBounds: StoredClassMetadataBounds {
+    let start = address(for: \._negativeSizeOrResilientBounds)
+    let address = start.relativeDirectAddress(
+      as: _StoredClassMetadataBounds.self
+    )
+    return StoredClassMetadataBounds(ptr: address)
   }
   
   /// The positive size of the metadata objects in this class.
@@ -55,7 +65,28 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
       return Int(layout._fieldOffsetVectorOffset)
     }
     
-    return resilientBounds._immediateMembersOffset / MemoryLayout<Int>.size
+    // Load the immediate members offset as seq_cst. I'm unsure if this is the
+    // correct memory order that was intended, but currently in Metadata.h in
+    // the Swift repository there is an implicit one used in
+    // `getFieldOffsetVectorOffset`. There is no explicit memory order load, so
+    // by default C++ chooses seq_cst for arithmetic operations. Be consistent
+    // with what the Swift runtime is currently doing.
+    
+    // The memory is already initialized from the binary, here we're simply
+    // binding the type from Swift's perspective. AFAICT, there is no way to
+    // just unbind a type from memory without deinitializing it as well (which
+    // we don't want to do).
+    let atomicIntPtr = resilientBounds.ptr.mutable.bindMemory(
+      to: Int.AtomicRepresentation.self,
+      capacity: 1
+    )
+    
+    let immediateMembersOffset = Int.AtomicRepresentation.atomicLoad(
+      at: atomicIntPtr,
+      ordering: .sequentiallyConsistent
+    )
+    
+    return immediateMembersOffset / MemoryLayout<Int>.size
             + Int(layout._fieldOffsetVectorOffset)
   }
   
@@ -72,7 +103,7 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
       offset += typeGenericContext.size
     }
     
-    return (trailing + offset).relativeDirectAddress(as: Void.self).raw
+    return (trailing + offset).relativeDirectAddress(as: Void.self)
   }
   
   /// The foreign metadata initialization info for this class metadata, if it
@@ -145,20 +176,20 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   /// An array of all of the method descriptors for this class for the entries
   /// in the vtable, if this class has a vtable.
   public var methodDescriptors: [MethodDescriptor] {
-    var result = [MethodDescriptor]()
-    
     guard typeFlags.classHasVTable else {
-      return result
+      return []
     }
     
-    let start = vtableHeader!.trailing
-    
-    for i in 0 ..< vtableHeader!.size {
-      let address = start + i * MemoryLayout<_MethodDescriptor>.size
-      result.append(MethodDescriptor(ptr: address))
+    return Array(unsafeUninitializedCapacity: vtableHeader!.size) {
+      let start = vtableHeader!.trailing
+      
+      for i in 0 ..< vtableHeader!.size {
+        let address = start.offset(of: i, as: _MethodDescriptor.self)
+        $0[i] = MethodDescriptor(ptr: address)
+      }
+      
+      $1 = vtableHeader!.size
     }
-    
-    return result
   }
   
   /// The override table header indicating how many method overrides there are
@@ -194,20 +225,161 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   /// An array of all of the method override descriptors, if this class has an
   /// override table.
   public var methodOverrideDescriptors: [MethodOverrideDescriptor] {
-    var result = [MethodOverrideDescriptor]()
-    
     guard typeFlags.classHasOverrideTable else {
-      return result
+      return []
     }
     
-    let start = overrideTableHeader!.trailing
+    return Array(unsafeUninitializedCapacity: overrideTableHeader!.numEntries) {
+      let start = overrideTableHeader!.trailing
+      
+      for i in 0 ..< overrideTableHeader!.numEntries {
+        let address = start.offset(of: i, as: _MethodOverrideDescriptor.self)
+        $0[i] = MethodOverrideDescriptor(ptr: address)
+      }
+      
+      $1 = overrideTableHeader!.numEntries
+    }
+  }
+  
+  // Internal methods related to Metadata bounds and argument offsets.
+  
+  var genericArgumentOffset: Int {
+    if typeFlags.classHasResilientSuperclass {
+      return resilientImmediateMembersOffset
+    } else {
+      return nonResilientImmediateMembersOffset
+    }
+  }
+  
+  var nonResilientImmediateMembersOffset: Int {
+    assert(!typeFlags.classHasResilientSuperclass)
     
-    for i in 0 ..< overrideTableHeader!.numEntries {
-      let address = start + i * MemoryLayout<_MethodOverrideDescriptor>.size
-      result.append(MethodOverrideDescriptor(ptr: address))
+    if typeFlags.classAreImmediateMembersNegative {
+      return -negativeSize
+    } else {
+      return positiveSize - numMembers
+    }
+  }
+  
+  var metadataBoundsForSwiftClass: (Int, Int, Int) {
+    let immediateMemberOffset = MemoryLayout<_ClassMetadata>.size
+    let positiveSize = MemoryLayout<_ClassMetadata>.size / MemoryLayout<Int>.size
+    // This is the class metadata header size, which is the destructor pointer
+    // + the value witness table pointer = 16 bytes.
+    // 16 bytes / sizeof(void *) = 2
+    let negativeSize = 2
+    
+    return (immediateMemberOffset, positiveSize, negativeSize)
+  }
+  
+  var resilientImmediateMembersOffset: Int {
+    assert(typeFlags.classHasResilientSuperclass)
+    
+    let immediateMembersOffset = resilientBounds.immediateMembersOffset
+    
+    // If this value is already cached, use it.
+    if immediateMembersOffset != 0 {
+      return immediateMembersOffset / MemoryLayout<Int>.size
     }
     
-    return result
+    // Otherwise, we're going to need to compute it.
+    var immediateMemberOffset = 0
+    var positiveSize = 0
+    var negativeSize = 0
+    
+    if let superclass = resilientSuperclass {
+      
+      func getMetadataBoundsForObjCClass(_ cls: AnyClass) -> (Int, Int, Int) {
+        let metadata = reflectClass(cls)!
+        
+        let rootBounds = metadataBoundsForSwiftClass
+        // 0 = Immediate member offset, 1 = positive size, 2 = negative size
+        var bounds = (0, 0, 0)
+        
+        if !metadata.isSwiftClass {
+          return rootBounds
+        }
+        
+        bounds.0 = metadata.classSize - metadata.classAddressPoint
+        bounds.1 = (metadata.classSize - metadata.classAddressPoint) / MemoryLayout<Int>.size
+        bounds.2 = metadata.classAddressPoint / MemoryLayout<Int>.size
+        
+        if bounds.2 < rootBounds.2 {
+          bounds.2 = rootBounds.2
+        }
+        
+        if bounds.1 < rootBounds.1 {
+          bounds.1 = rootBounds.1
+        }
+        
+        return bounds
+      }
+      
+      switch typeFlags.resilientSuperclassRefKind {
+      case .indirectTypeDescriptor:
+        let descriptor = ClassDescriptor(
+          ptr: superclass.load(as: SignedPointer<ClassDescriptor>.self).signed
+        )
+        immediateMemberOffset = descriptor.genericArgumentOffset
+        
+      case .directTypeDescriptor:
+        let descriptor = ClassDescriptor(ptr: superclass)
+        immediateMemberOffset = descriptor.genericArgumentOffset
+        
+      case .directObjCClass:
+        #if canImport(ObjectiveC)
+        let name = UnsafePointer<CChar>(superclass._rawValue)
+        guard var cls = objc_lookUpClass(name) else {
+          let name = String(cString: name)
+          fatalError("Failed to lookup Objective-C class named: \(name)")
+        }
+        
+        cls = swift_getInitializedObjCClass(cls)
+        (immediateMemberOffset, positiveSize, negativeSize) =
+          getMetadataBoundsForObjCClass(cls)
+        #else
+        break
+        #endif
+        
+      case .indirectObjCClass:
+        #if canImport(ObjectiveC)
+        let cls = UnsafePointer<AnyClass>(superclass._rawValue)
+        (immediateMemberOffset, positiveSize, negativeSize) =
+          getMetadataBoundsForObjCClass(cls.pointee)
+        #else
+        break
+        #endif
+      }
+    } else {
+      (immediateMemberOffset, positiveSize, negativeSize) =
+        metadataBoundsForSwiftClass
+    }
+    
+    if typeFlags.classAreImmediateMembersNegative {
+      negativeSize += numMembers
+      immediateMemberOffset = -negativeSize * MemoryLayout<Int>.size
+    } else {
+      immediateMemberOffset = positiveSize * MemoryLayout<Int>.size
+      positiveSize += numMembers
+    }
+    
+    let start = address(for: \._negativeSizeOrResilientBounds)
+    let bounds = UnsafeMutablePointer(mutating: start.relativeDirectAddress(
+      as: _StoredClassMetadataBounds.self
+    ).assumingMemoryBound(to: _StoredClassMetadataBounds.self))
+    
+    bounds.pointee._bounds._positiveSize = UInt32(positiveSize)
+    bounds.pointee._bounds._negativeSize = UInt32(negativeSize)
+    
+    bounds.withMemoryRebound(to: Int.AtomicRepresentation.self, capacity: 1) {
+      Int.AtomicRepresentation.atomicStore(
+        immediateMemberOffset,
+        at: $0,
+        ordering: .releasing
+      )
+    }
+    
+    return immediateMemberOffset / MemoryLayout<Int>.size
   }
 }
 
@@ -278,8 +450,8 @@ public struct MethodOverrideDescriptor: LayoutWrapper {
 
 /// Bounds for metadata objects.
 public struct MetadataBounds {
-  let _negativeSize: UInt32
-  let _positiveSize: UInt32
+  var _negativeSize: UInt32
+  var _positiveSize: UInt32
   
   /// The negative size of the metadata in words.
   public var negativeSize: Int {
@@ -310,8 +482,21 @@ struct _ClassDescriptor {
 }
 
 struct _StoredClassMetadataBounds {
-  let _immediateMembersOffset: Int
-  let _bounds: MetadataBounds
+  var _immediateMembersOffset: Int.AtomicRepresentation
+  var _bounds: MetadataBounds
+}
+
+struct StoredClassMetadataBounds: LayoutWrapper {
+  typealias Layout = _StoredClassMetadataBounds
+  
+  let ptr: UnsafeRawPointer
+  
+  var immediateMembersOffset: Int {
+    Int.AtomicRepresentation.atomicLoad(
+      at: ptr.mutable.bindMemory(to: Int.AtomicRepresentation.self, capacity: 1),
+      ordering: .relaxed
+    )
+  }
 }
 
 struct _VTableDescriptorHeader {

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A context descriptor describes any entity in Swift that contains other
@@ -34,7 +34,7 @@ extension ContextDescriptor {
     let offset = ptr.offset(of: 1, as: Int32.self)
     
     return getContextDescriptor(
-      at: _descriptor._parent.address(from: offset).raw
+      at: _descriptor._parent.address(from: offset)
     )
   }
   
@@ -78,6 +78,10 @@ struct _ContextDescriptor {
 func getContextDescriptor(
   at ptr: UnsafeRawPointer
 ) -> ContextDescriptor {
+  #if _ptrauth(_arm64e)
+  let ptr = __ptrauth_strip_asda(ptr)!
+  #endif
+  
   let flags = ptr.load(as: ContextDescriptorFlags.self)
   
   switch flags.kind {

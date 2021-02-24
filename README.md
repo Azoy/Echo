@@ -4,6 +4,14 @@ A complete reflection package for Swift.
 
 [![Build Status](https://travis-ci.org/Azoy/Echo.svg?branch=master)](https://travis-ci.org/Azoy/Echo)
 
+## Installation
+
+Simply add the following dependency to your `Package.swift`:
+
+```swift
+.package(url: "https://github.com/Azoy/Echo.git", from: "0.0.1")
+```
+
 ## Usage
 
 ```swift
@@ -22,12 +30,4 @@ for element in point.elements {
   print(element.type) // Swift.Double, Swift.Double
   print(element.offset) // 0, 8
 }
-```
-
-## Installation
-
-Simply add the following dependency to your `Package.swift`:
-
-```swift
-.package(url: "https://github.com/Azoy/Echo.git", from: "0.0.1")
 ```

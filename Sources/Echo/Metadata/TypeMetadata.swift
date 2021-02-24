@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// Type metadata refers to those metadata records who declare a new type in
@@ -20,7 +20,7 @@ extension TypeMetadata {
   /// - Returns: The type that the mangled type name refers to, if we're able
   ///            to demangle it.
   public func type(
-    of mangledName: UnsafePointer<CChar>
+    of mangledName: UnsafeRawPointer
   ) -> Any.Type? {
     let str = mangledName.string
     
@@ -30,9 +30,11 @@ extension TypeMetadata {
       }
     }
     
+    let length = getSymbolicMangledNameLength(mangledName)
+    let name = mangledName.assumingMemoryBound(to: UInt8.self)
     let type = _getTypeByMangledNameInContext(
-      UnsafePointer<UInt8>(mangledName),
-      UInt(getSymbolicMangledNameLength(mangledName.raw)),
+      name,
+      UInt(length),
       genericContext: contextDescriptor.ptr,
       genericArguments: genericArgumentPtr
     )
@@ -75,20 +77,8 @@ extension TypeMetadata {
     case is EnumMetadata:
       return ptr + MemoryLayout<_EnumMetadata>.size
       
-    case is ClassMetadata:
-      let classMetadata = self as! ClassMetadata
-      
-      if !classMetadata.descriptor.typeFlags.classHasResilientSuperclass {
-        if classMetadata.descriptor.typeFlags.classAreImmediateMembersNegative {
-          return ptr.offset(of: -classMetadata.descriptor.negativeSize)
-        } else {
-          return ptr.offset(of: classMetadata.descriptor.positiveSize -
-                                classMetadata.descriptor.numMembers)
-        }
-      }
-      
-      return ptr +
-        classMetadata.descriptor.resilientBounds._immediateMembersOffset
+    case let classMetadata as ClassMetadata:
+      return ptr.offset(of: classMetadata.descriptor.genericArgumentOffset)
       
     default:
       fatalError()
@@ -102,16 +92,33 @@ extension TypeMetadata {
       return []
     }
     
-    let buffer = UnsafeBufferPointer<Any.Type>(
-      start: UnsafePointer<Any.Type>(genericArgumentPtr),
-      count: contextDescriptor.genericContext!.numParams
-    )
-    return Array(buffer)
+    let numParams = contextDescriptor.genericContext!.numParams
+    
+    return Array(unsafeUninitializedCapacity: numParams) {
+      // Explicitly only call this once because class metadata could require
+      // computation, so only do it once if needed.
+      let gap = genericArgumentPtr
+      
+      for i in 0 ..< numParams {
+        let type = gap.load(
+          fromByteOffset: i * MemoryLayout<Any.Type>.stride,
+          as: Any.Type.self
+        )
+        
+        $0[i] = type
+      }
+      
+      $1 = numParams
+    }
   }
   
   /// An array of metadata records for the types that represent the generic
   /// arguments that make up this type.
   public var genericMetadata: [Metadata] {
     genericTypes.map { reflect($0) }
+  }
+  
+  public var conformances: [ConformanceDescriptor] {
+    Echo.conformances[contextDescriptor.ptr, default: []]
   }
 }

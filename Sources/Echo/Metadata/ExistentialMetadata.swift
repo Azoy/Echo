@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents some existential type, mainly
@@ -38,17 +38,24 @@ public struct ExistentialMetadata: Metadata, LayoutWrapper {
   
   /// An array of protocols that make up this existential.
   public var protocols: [ProtocolDescriptor] {
-    var start = trailing
-    
-    if flags.hasSuperclassConstraint {
-      start = start.offset(of: 1)
+    Array(unsafeUninitializedCapacity: numProtocols) {
+      var start = trailing
+      
+      if flags.hasSuperclassConstraint {
+        start = start.offset(of: 1)
+      }
+      
+      for i in 0 ..< numProtocols {
+        let proto = start.load(
+          fromByteOffset: i * MemoryLayout<ProtocolDescriptor>.size,
+          as: ProtocolDescriptor.self
+        )
+        
+        $0[i] = proto
+      }
+      
+      $1 = numProtocols
     }
-    
-    let buffer = UnsafeBufferPointer<ProtocolDescriptor>(
-      start: UnsafePointer<ProtocolDescriptor>(start),
-      count: numProtocols
-    )
-    return Array(buffer)
   }
 }
 

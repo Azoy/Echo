@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// An extension descriptor that describes some extension context.
@@ -16,7 +16,7 @@ public struct ExtensionDescriptor: ContextDescriptor, LayoutWrapper {
   /// The mangled name which this extension extends.
   /// Ex. If this extension extends Int, this mangled name might be
   ///     Si or some symbolic reference to Int's context descriptor.
-  public var extendedContext: UnsafePointer<CChar> {
+  public var extendedContext: UnsafeRawPointer {
     address(for: \._extendedContext)
   }
 }

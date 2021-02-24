@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a `class` type in Swift.
@@ -16,7 +16,7 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   /// The class context descriptor that describes this class.
   public var descriptor: ClassDescriptor {
     precondition(isSwiftClass)
-    return layout._descriptor
+    return ClassDescriptor(ptr: layout._descriptor.signed)
   }
   
   /// The Objective-C ISA pointer, if it has one.
@@ -38,12 +38,20 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   /// The superclass type metadata that this class inherits from, it it inherits
   /// one at all.
   public var superclassMetadata: ClassMetadata? {
-    superclassType.map { reflect($0) as! ClassMetadata }
+    superclassType.map { reflectClass($0)! }
+  }
+  
+  public var classAddressPoint: Int {
+    Int(layout._classAddressPoint)
   }
   
   /// The specific flags that describe this class metadata.
   public var classFlags: Flags {
     layout._flags
+  }
+  
+  public var classSize: Int {
+    Int(layout._classSize)
   }
   
   // FIXME: Below isn't quite right yet... It doesn't take into account what's
@@ -84,12 +92,20 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
   
   /// An array of field offsets for this class's stored representation.
   public var fieldOffsets: [Int] {
-    let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
-    let buffer = UnsafeBufferPointer<Int>(
-      start: UnsafePointer<Int>(start),
-      count: descriptor.numFields
-    )
-    return Array(buffer)
+    Array(unsafeUninitializedCapacity: descriptor.numFields) {
+      let start = ptr.offset(of: descriptor.fieldOffsetVectorOffset)
+      
+      for i in 0 ..< descriptor.numFields {
+        let offset = start.load(
+          fromByteOffset: i * MemoryLayout<Int>.size,
+          as: Int.self
+        )
+        
+        $0[i] = offset
+      }
+      
+      $1 = descriptor.numFields
+    }
   }
 }
 
@@ -105,6 +121,6 @@ struct _ClassMetadata {
   let _runtimeReserved: UInt16
   let _classSize: UInt32
   let _classAddressPoint: UInt32
-  let _descriptor: ClassDescriptor
+  let _descriptor: SignedPointer<ClassDescriptor>
   let _ivarDestroyer: UnsafeRawPointer
 }

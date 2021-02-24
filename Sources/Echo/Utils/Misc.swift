@@ -3,17 +3,24 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
-extension _Pointer {
+extension UnsafePointer {
   var raw: UnsafeRawPointer {
-    UnsafeRawPointer(_rawValue)
+    UnsafeRawPointer(self)
   }
-  
-  // I mean, let's be honest.
-  init<T: _Pointer>(_ ptr: T) {
-    self.init(ptr._rawValue)
+}
+
+extension UnsafeMutablePointer {
+  var raw: UnsafeRawPointer {
+    UnsafeRawPointer(self)
+  }
+}
+
+extension UnsafeMutableRawPointer {
+  var raw: UnsafeRawPointer {
+    UnsafeRawPointer(self)
   }
 }
 
@@ -42,6 +49,12 @@ extension UnsafePointer where Pointee == CChar {
   }
 }
 
+extension UnsafeRawPointer {
+  var string: String {
+    String(cString: assumingMemoryBound(to: CChar.self))
+  }
+}
+
 protocol LayoutWrapper {
   associatedtype Layout
   
@@ -59,14 +72,14 @@ extension LayoutWrapper {
   
   func address<T>(
     for field: KeyPath<Layout, T>
-  ) -> UnsafePointer<T> {
+  ) -> UnsafeRawPointer {
     let offset = MemoryLayout<Layout>.offset(of: field)!
-    return UnsafePointer<T>(ptr + offset)
+    return ptr + offset
   }
   
-  func address<T: RelativePointer, U>(
+  func address<T: RelativePointer>(
     for field: KeyPath<Layout, T>
-  ) -> UnsafePointer<U> where T.Pointee == U {
+  ) -> UnsafeRawPointer {
     let offset = MemoryLayout<Layout>.offset(of: field)!
     return layout[keyPath: field].address(from: ptr + offset)
   }

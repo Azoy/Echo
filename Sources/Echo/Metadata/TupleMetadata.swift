@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a tuple type in Swift.
@@ -20,7 +20,18 @@ public struct TupleMetadata: Metadata, LayoutWrapper {
   
   /// An array of labels for each element in this tuple.
   public var labels: [String] {
-    let split = layout._labels.string.split(
+    // If we don't have a label pointer, then this tuple has no labels at all.
+    guard let labels = layout._labels else {
+      var result = [String]()
+      
+      for i in 0 ..< numElements {
+        result.append("\(i)")
+      }
+      
+      return result
+    }
+    
+    let split = labels.string.split(
       separator: " ",
       maxSplits: numElements,
       omittingEmptySubsequences: false
@@ -29,7 +40,11 @@ public struct TupleMetadata: Metadata, LayoutWrapper {
     var result = [String]()
     
     for i in 0 ..< numElements {
-      result.append(String(split[i]))
+      if split[i] == "" {
+        result.append("\(i)")
+      } else {
+        result.append(String(split[i]))
+      }
     }
     
     return result
@@ -77,7 +92,7 @@ extension TupleMetadata {
 struct _TupleMetadata {
   let _kind: Int
   let _numElements: Int
-  let _labels: UnsafePointer<CChar>
+  let _labels: UnsafePointer<CChar>?
 }
 
 struct _TupleElement {

@@ -6,7 +6,7 @@ struct AnonymousFoo {
   private struct AnonymousGenericBar<T: Equatable> {}
   
   static func test() throws {
-    let metadata = reflect(AnonymousBar.self) as! StructMetadata
+    let metadata = reflectStruct(AnonymousBar.self)!
     let parent = metadata.descriptor.parent! as! AnonymousDescriptor
     XCTAssertTrue(parent.anonymousFlags.hasMangledName)
     let mangledName = try XCTUnwrap(parent.mangledName)
@@ -17,7 +17,7 @@ struct AnonymousFoo {
   }
   
   static func testGeneric() throws {
-    let metadata = reflect(AnonymousGenericBar<Int>.self) as! StructMetadata
+    let metadata = reflectStruct(AnonymousGenericBar<Int>.self)!
     let parent = metadata.descriptor.parent! as! AnonymousDescriptor
     XCTAssertTrue(parent.anonymousFlags.hasMangledName)
     let mangledName = try XCTUnwrap(parent.mangledName)

@@ -3,11 +3,11 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 // This isn't used anywhere yet... ?
-public struct FieldType {
+struct FieldType {
   public let bits: UInt
   
   public var isIndirect: Bool {

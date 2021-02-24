@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A generic context describes the generic information about some generic
@@ -41,11 +41,18 @@ public struct GenericContext: LayoutWrapper {
   
   /// An array of all the generic parameters this context has.
   public var parameters: [GenericParameterDescriptor] {
-    let buffer = UnsafeBufferPointer<GenericParameterDescriptor>(
-      start: UnsafePointer<GenericParameterDescriptor>(trailing),
-      count: numParams
-    )
-    return Array(buffer)
+    Array(unsafeUninitializedCapacity: numParams) {
+      for i in 0 ..< numParams {
+        let param = trailing.load(
+          fromByteOffset: i * MemoryLayout<GenericParameterDescriptor>.stride,
+          as: GenericParameterDescriptor.self
+        )
+        
+        $0[i] = param
+      }
+      
+      $1 = numParams
+    }
   }
   
   /// The number of bytes the requirements take up.
@@ -55,16 +62,19 @@ public struct GenericContext: LayoutWrapper {
   
   /// An array of all the generic requirements this context has.
   public var requirements: [GenericRequirementDescriptor] {
-    var result = [GenericRequirementDescriptor]()
-    
-    for i in 0 ..< numRequirements {
-      let requirements = trailing + parameterSize
-      let requirementSize = MemoryLayout<_GenericRequirementDescriptor>.size
-      let address = requirements + i * requirementSize
-      result.append(GenericRequirementDescriptor(ptr: address))
+    Array(unsafeUninitializedCapacity: numRequirements) {
+      for i in 0 ..< numRequirements {
+        let requirements = trailing + parameterSize
+        let address = requirements.offset(
+          of: i,
+          as: _GenericRequirementDescriptor.self
+        )
+        
+        $0[i] = GenericRequirementDescriptor(ptr: address)
+      }
+      
+      $1 = numRequirements
     }
-    
-    return result
   }
   
   /// Number of bytes this generic context is.
@@ -88,15 +98,15 @@ public struct GenericRequirementDescriptor: LayoutWrapper {
   }
   
   /// The mangled name for this requirement's parameter.
-  public var paramMangledName: UnsafePointer<CChar> {
+  public var paramMangledName: UnsafeRawPointer {
     address(for: \._param)
   }
   
   /// If this requirement is a sameType or baseClass, this is the mangled name
   /// for the type that's being constrained.
-  public var mangledTypeName: UnsafePointer<CChar> {
+  public var mangledTypeName: UnsafeRawPointer {
     assert(flags.kind == .sameType || flags.kind == .baseClass)
-    let addr = address(for: \._requirement).raw
+    let addr = address(for: \._requirement)
     return addr.relativeDirectAddress(as: CChar.self)
   }
   
@@ -104,11 +114,11 @@ public struct GenericRequirementDescriptor: LayoutWrapper {
   /// said protocol being constrained.
   public var `protocol`: ProtocolDescriptor {
     assert(flags.kind == .protocol)
-    let addr = address(for: \._requirement).raw
+    let addr = address(for: \._requirement)
     let ptr = addr.relativeIndirectableIntPairAddress(
       as: _ProtocolDescriptor.self,
       and: UInt8.self
-    ).raw
+    )
     return ProtocolDescriptor(ptr: ptr)
   }
   
@@ -132,7 +142,7 @@ public struct TypeGenericContext: LayoutWrapper {
   
   /// Grab the base context.
   var baseContext: GenericContext {
-    GenericContext(ptr: address(for: \._base).raw)
+    GenericContext(ptr: address(for: \._base))
   }
   
   /// The number of generic parameters this context has.
@@ -167,7 +177,7 @@ public struct TypeGenericContext: LayoutWrapper {
   
   /// The instantiation pattern for this type generic context.
   public var genericMetadataPattern: GenericMetadataPattern {
-    let ptr = address(for: \._defaultInstantiationPattern).raw
+    let ptr = address(for: \._defaultInstantiationPattern)
     return GenericMetadataPattern(ptr: ptr)
   }
   

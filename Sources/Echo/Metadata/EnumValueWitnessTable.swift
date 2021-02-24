@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The value witness table for enums that have enum specific value witness
@@ -15,7 +15,7 @@ public struct EnumValueWitnessTable: LayoutWrapper {
   public let ptr: UnsafeRawPointer
   
   var _enumVwt: _EnumValueWitnessTable {
-    ptr.load(as: UnsafePointer<_EnumValueWitnessTable>.self).pointee
+    ptr.load(as: UnsafeRawPointer.self).load(as: _EnumValueWitnessTable.self)
   }
   
   /// The base value witness table.

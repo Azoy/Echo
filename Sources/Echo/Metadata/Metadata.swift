@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// Metadata refers to the Swift metadata records in a given binary. All
@@ -65,6 +65,16 @@ extension Metadata {
     container.pointee.data.0 = Int(bitPattern: box.heapObj)
     return box.buffer
   }
+}
+
+func getMetadataKind(at ptr: UnsafeRawPointer) -> MetadataKind {
+  // If we can't form a metadata kind here, it is most likely an obj-c
+  // compatible class whose kind is the ISA pointer address.
+  guard let kind = MetadataKind(rawValue: ptr.load(as: Int.self)) else {
+    return .class
+  }
+  
+  return kind
 }
 
 // Determine what metadata to return given a blank pointer to some metadata.

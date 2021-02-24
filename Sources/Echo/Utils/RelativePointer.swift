@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 // This relative pointer design is a little different because typical Swift
@@ -24,7 +24,7 @@ protocol RelativePointer {
   
   var offset: Int32 { get }
   
-  func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee>
+  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer
   func pointee(from ptr: UnsafeRawPointer) -> Pointee?
 }
 
@@ -33,7 +33,7 @@ extension RelativePointer {
     offset == 0
   }
   
-  func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee> {
-    UnsafePointer<Pointee>(ptr + Int(offset))
+  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
+    ptr + Int(offset)
   }
 }

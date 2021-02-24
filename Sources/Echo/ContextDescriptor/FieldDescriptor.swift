@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A special descriptor that describes a type's fields.
@@ -19,12 +19,12 @@ public struct FieldDescriptor: LayoutWrapper {
   }
   
   /// The mangled name for this field descriptor.
-  public var mangledTypeName: UnsafePointer<CChar> {
+  public var mangledTypeName: UnsafeRawPointer {
     address(for: \._mangledTypeName)
   }
   
   /// The superclass mangled name for a class.
-  public var superclass: UnsafePointer<CChar> {
+  public var superclass: UnsafeRawPointer {
     address(for: \._superclass)
   }
   
@@ -45,14 +45,14 @@ public struct FieldDescriptor: LayoutWrapper {
   
   /// An array of this type's field records.
   public var records: [FieldRecord] {
-    var result = [FieldRecord]()
-    
-    for i in 0 ..< numFields {
-      let address = trailing.offset(of: i, as: _FieldRecord.self)
-      result.append(FieldRecord(ptr: address))
+    Array(unsafeUninitializedCapacity: numFields) {
+      for i in 0 ..< numFields {
+        let address = trailing.offset(of: i, as: _FieldRecord.self)
+        $0[i] = FieldRecord(ptr: address)
+      }
+      
+      $1 = numFields
     }
-    
-    return result
   }
 }
 
@@ -84,7 +84,7 @@ public struct FieldRecord: LayoutWrapper {
   ///     for field in metadata.contextDescriptor.fields.records {
   ///       let fieldType = metadata.type(of: field.mangledTypeName)
   ///     }
-  public var mangledTypeName: UnsafePointer<CChar> {
+  public var mangledTypeName: UnsafeRawPointer {
     address(for: \._mangledTypeName)
   }
   
@@ -97,7 +97,7 @@ public struct FieldRecord: LayoutWrapper {
   public var referenceStorage: ReferenceStorageKind {
     var fieldTypePtr = mangledTypeName
     
-    let firstChar = fieldTypePtr.pointee
+    let firstChar = fieldTypePtr.load(as: CChar.self)
 
     // If the field name begins with a relative address, skip over that.
     if firstChar >= 0x1 && firstChar <= 0x1F {

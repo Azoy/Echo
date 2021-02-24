@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 struct RelativeDirectPointer<Pointee>: RelativePointer {
@@ -14,12 +14,12 @@ struct RelativeDirectPointer<Pointee>: RelativePointer {
       return nil
     }
     
-    return address(from: ptr).pointee
+    return address(from: ptr).load(as: Pointee.self)
   }
 }
 
 extension UnsafeRawPointer {
-  func relativeDirectAddress<T>(as type: T.Type) -> UnsafePointer<T> {
+  func relativeDirectAddress<T>(as type: T.Type) -> UnsafeRawPointer {
     let relativePointer = RelativeDirectPointer<T>(
       offset: load(as: Int32.self)
     )

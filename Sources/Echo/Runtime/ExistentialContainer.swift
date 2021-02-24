@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 // typealias Any = AnyExistentialContainer :)
@@ -53,7 +53,9 @@ public struct AnyExistentialContainer {
     let heapObjSize = UInt(MemoryLayout<HeapObject>.size)
     let byteOffset = (heapObjSize + alignMask) & ~alignMask
     let bytePtr = withUnsafePointer(to: &self) {
-      UnsafePointer<UnsafePointer<HeapObject>>($0).pointee.raw
+      $0.withMemoryRebound(to: UnsafePointer<HeapObject>.self, capacity: 1) {
+        $0.pointee.raw
+      }
     }
     
     return bytePtr + Int(byteOffset)

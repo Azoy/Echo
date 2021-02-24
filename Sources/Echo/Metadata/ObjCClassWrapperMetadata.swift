@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents an Objective-C class that wasn't
@@ -21,7 +21,11 @@ public struct ObjCClassWrapperMetadata: Metadata, LayoutWrapper {
   
   /// The class metadata 
   public var classMetadata: ClassMetadata {
-    reflect(classType) as! ClassMetadata
+    reflectClass(classType)!
+  }
+  
+  public var conformances: [ConformanceDescriptor] {
+    Echo.conformances[ptr, default: []]
   }
 }
 

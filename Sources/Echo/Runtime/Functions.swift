@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 import CEcho
@@ -43,13 +43,17 @@ public func swift_projectBox(
   swift_projectBox(heapObj.raw.mutable)!.raw
 }
 
+//===----------------------------------------------------------------------===//
+// HeapObject Functions
+//===----------------------------------------------------------------------===//
+
 public func swift_allocObject(
   for type: ClassMetadata,
   size: Int,
   alignmentMask: Int
-) -> UnsafePointer<HeapObject>? {
+) -> UnsafeRawPointer? {
   if let object = swift_allocObject(type.ptr.mutable, size, alignmentMask) {
-    return UnsafePointer<HeapObject>(object)
+    return object.raw
   }
   
   return nil
@@ -63,6 +67,10 @@ struct TypeNamePair {
   public let data: UnsafePointer<CChar>
   public let length: UInt
 }
+
+//===----------------------------------------------------------------------===//
+// Mangling Functions
+//===----------------------------------------------------------------------===//
 
 @_silgen_name("swift_getTypeName")
 func _swift_getTypeName(
@@ -88,6 +96,10 @@ public func swift_getTypeName(
 ) -> String {
   swift_getTypeName(for: metadata.type, qualified: qualified)
 }
+
+//===----------------------------------------------------------------------===//
+// Protocol Functions
+//===----------------------------------------------------------------------===//
 
 public func swift_conformsToProtocol(
   type: Any.Type,

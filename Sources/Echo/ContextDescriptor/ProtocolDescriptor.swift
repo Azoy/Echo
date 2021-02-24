@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A protocol descriptor that describes some protocol context.
@@ -40,30 +40,33 @@ public struct ProtocolDescriptor: ContextDescriptor, LayoutWrapper {
   
   /// An array of all the generic requirements in this protocol's signature.
   public var requirementSignature: [GenericRequirementDescriptor] {
-    var result = [GenericRequirementDescriptor]()
-    
-    for i in 0 ..< numRequirementsInSignature {
-      let requirementSize = MemoryLayout<_GenericRequirementDescriptor>.size
-      let address = trailing + i * requirementSize
-      result.append(GenericRequirementDescriptor(ptr: address))
+    Array(unsafeUninitializedCapacity: numRequirementsInSignature) {
+      for i in 0 ..< numRequirementsInSignature {
+        let address = trailing.offset(
+          of: i,
+          as: _GenericRequirementDescriptor.self
+        )
+        
+        $0[i] = GenericRequirementDescriptor(ptr: address)
+      }
+      
+      $1 = numRequirementsInSignature
     }
-    
-    return result
   }
   
   /// An array of all the protocol requirements this protocol defines.
   public var requirements: [ProtocolRequirement] {
-    var result = [ProtocolRequirement]()
-    
-    for i in 0 ..< numRequirements {
-      let requirementSize = MemoryLayout<_ProtocolRequirement>.size
+    Array(unsafeUninitializedCapacity: numRequirements) {
       let genericReqSize = MemoryLayout<_GenericRequirementDescriptor>.size
       let start = trailing + numRequirementsInSignature * genericReqSize
-      let address = start + i * requirementSize
-      result.append(ProtocolRequirement(ptr: address))
+      
+      for i in 0 ..< numRequirements {
+        let address = start.offset(of: i, as: _ProtocolRequirement.self)
+        $0[i] = ProtocolRequirement(ptr: address)
+      }
+      
+      $1 = numRequirements
     }
-    
-    return result
   }
 }
 

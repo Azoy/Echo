@@ -7,8 +7,11 @@ let package = Package(
   products: [
     .library(
       name: "Echo",
-      targets: ["Echo", "EchoMirror", "EchoProperties"]
+      targets: ["Echo"]
     )
+  ],
+  dependencies: [
+    .package(url: "https://github.com/apple/swift-atomics.git", from: "0.0.1")
   ],
   targets: [
     .target(
@@ -17,19 +20,11 @@ let package = Package(
     ),
     .target(
       name: "Echo",
-      dependencies: ["CEcho"]
-    ),
-    .target(
-      name: "EchoMirror",
-      dependencies: ["Echo"]
-    ),
-    .target(
-      name: "EchoProperties",
-      dependencies: ["Echo"]
+      dependencies: ["CEcho", "Atomics"]
     ),
     .testTarget(
       name: "EchoTests",
-      dependencies: ["Echo", "EchoProperties"]
+      dependencies: ["Echo"]
     )
   ]
 )

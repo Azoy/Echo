@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 struct RelativeIndirectablePointerIntPair<
@@ -24,8 +24,8 @@ struct RelativeIndirectablePointerIntPair<
     int & 1 != 0
   }
   
-  func address(from ptr: UnsafeRawPointer) -> UnsafePointer<Pointee> {
-    UnsafePointer<Pointee>(ptr + Int((offset & ~intMask) & ~1))
+  func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
+    ptr + Int((offset & ~intMask) & ~1)
   }
   
   func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
@@ -34,10 +34,10 @@ struct RelativeIndirectablePointerIntPair<
     }
     
     if Int(offset) & 1 == 1 {
-      let pointer = address(from: ptr).raw.load(as: UnsafePointer<Pointee>.self)
-      return pointer.pointee
+      let pointer = address(from: ptr).load(as: UnsafeRawPointer.self)
+      return pointer.load(as: Pointee.self)
     } else {
-      return address(from: ptr).pointee
+      return address(from: ptr).load(as: Pointee.self)
     }
   }
 }
@@ -46,7 +46,7 @@ extension UnsafeRawPointer {
   func relativeIndirectableIntPairAddress<T, U: FixedWidthInteger>(
     as type: T.Type,
     and typ2: U.Type
-  ) -> UnsafePointer<T> {
+  ) -> UnsafeRawPointer {
     let relativePointer = RelativeIndirectablePointerIntPair<T, U>(
       offset: load(as: Int32.self)
     )

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The value witness table is a table of function pointers that describe how
@@ -14,7 +14,7 @@ public struct ValueWitnessTable: LayoutWrapper {
   typealias Layout = UnsafePointer<_ValueWitnessTable>
   
   /// Backing value witness table pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   var _vwt: _ValueWitnessTable {
     layout.pointee

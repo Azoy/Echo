@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 extension AnyKeyPath {
@@ -98,32 +98,6 @@ public struct KeyPathObject: LayoutWrapper {
     
     return result
   }
-  
-  public var componentTypes: [Any.Type] {
-    var result = [Any.Type]()
-    
-    let start = ptr.offset(of: 4)
-    let numComponents = components.count
-    
-    for i in 0 ..< numComponents {
-      // There is no metadata pointer for the last component. Instead, we have
-      // to look for the Value generic in KeyPath<Root, Value>.
-      if i == numComponents - 1 {
-        assert(heapObject.metadata.kind == .class,
-               "Keypath class object that's not a class?")
-        let typeMetadata = heapObject.metadata as! ClassMetadata
-        assert(typeMetadata.genericTypes.count == 2,
-               "Keypath type without 2 generic types? Root and Leaf?")
-        result.append(typeMetadata.genericTypes[1])
-        break
-      }
-      
-      let metadataPtr = start.offset(of: i + 1)
-      result.append(metadataPtr.load(as: Any.Type.self))
-    }
-    
-    return result
-  }
 }
 
 extension KeyPathObject: CustomStringConvertible {
@@ -214,7 +188,7 @@ public struct KeyPathBufferHeader {
 public struct KeyPathComponent: LayoutWrapper {
   typealias Layout = UInt32
   
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   public var hasCapturedArguments: Bool {
     precondition(kind == .computed)
@@ -223,6 +197,10 @@ public struct KeyPathComponent: LayoutWrapper {
   
   var hasTrailingPayload: Bool {
     return payload == 0xFFFFFF
+  }
+  
+  public var identifierKind: (Bool, Bool) {
+    (layout & 0x200000 != 0, layout & 0x100000 != 0)
   }
   
   public var isComputedMutating: Bool {

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A type context descriptor is a context descriptor who defines some new type.
@@ -62,7 +62,7 @@ extension TypeContextDescriptor {
   /// type.
   public var fields: FieldDescriptor {
     let offset = ptr.offset(of: 4, as: Int32.self)
-    let address = _typeDescriptor._fields.address(from: offset).raw
+    let address = _typeDescriptor._fields.address(from: offset)
     return FieldDescriptor(ptr: address)
   }
   
