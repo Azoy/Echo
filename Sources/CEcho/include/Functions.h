@@ -6,8 +6,8 @@
 //  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
-#ifndef SWIFT_RUNTIME_FUNCTIONS
-#define SWIFT_RUNTIME_FUNCTIONS
+#ifndef SWIFT_RUNTIME_FUNCTIONS_H
+#define SWIFT_RUNTIME_FUNCTIONS_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -87,6 +87,6 @@ extern bool swift_dynamicCast(void *dest, void *src, const void *srcType,
 #include <objc/runtime.h>
 
 extern Class swift_getInitializedObjCClass(Class c);
-#endif
+#endif // defined(__OBJC__)
 
-#endif
+#endif /* SWIFT_RUNTIME_FUNCTIONS_H */

@@ -36,14 +36,23 @@ void loadImages() {
   _dyld_register_func_for_add_image(_loadImageFunc);
 }
 
-#endif
+#endif // defined(__MACH__)
 
 //===----------------------------------------------------------------------===//
 // ELF Image Inspection
 //===----------------------------------------------------------------------===//
 
 #if defined(__ELF__)
- 
+
+// The Swift runtime solely uses the trick below to get all of the protocol
+// conformance sections whenever an image is loaded into. We can't do that for
+// Echo because there are plenty of conformances defined in libraries like the
+// standard library that we need to search through. Thus the need for the work
+// found in ImageInspectionELF.c
+
+// Create an empty section with the same name as one passed in to generate the
+// start and stop variables for that section. We do this in addition to
+// iterating through program headers to get the executable's sections.
 #define SWIFT_SECTION(name) \
   __asm__("\t.section " #name ", \"a\"\n"); \
   __attribute((__visibility__("hidden"), aligned(1))) extern const char __start_##name; \
@@ -61,17 +70,7 @@ SWIFT_SECTION(swift5_protocol_conformances)
 
 #undef SWIFT_SECTION
 
-#define SWIFT_REGISTER_SECTION(name, handle) \
-  handle(&__start_##name, &__stop_##name - &__start_##name);
-
-__attribute__((__constructor__))
-void addImage() {
-  SWIFT_REGISTER_SECTION(swift5_protocol_conformances, registerProtocolConformances)
-}
-
-#undef SWIFT_REGISTER_SECTION
-
-#endif
+#endif // defined(__ELF)
 
 //===----------------------------------------------------------------------===//
 // COFF Image Inspection

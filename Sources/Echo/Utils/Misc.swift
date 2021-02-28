@@ -6,6 +6,8 @@
 //  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
+import Foundation
+
 extension UnsafePointer {
   var raw: UnsafeRawPointer {
     UnsafeRawPointer(self)
@@ -55,6 +57,14 @@ extension UnsafeRawPointer {
   }
 }
 
+extension NSLock {
+  func withLock<T>(_ closure: () throws -> T) rethrows -> T {
+    lock()
+    defer { unlock() }
+    return try closure()
+  }
+}
+
 protocol LayoutWrapper {
   associatedtype Layout
   
@@ -84,8 +94,6 @@ extension LayoutWrapper {
     return layout[keyPath: field].address(from: ptr + offset)
   }
 }
-
-var mangledNameCache = [UnsafeRawPointer: [String: Any.Type?]]()
 
 // https://github.com/apple/swift/blob/master/stdlib/public/core/KeyPath.swift
 func getSymbolicMangledNameLength(_ base: UnsafeRawPointer) -> Int {

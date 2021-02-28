@@ -25,7 +25,12 @@ enum StructMetadataTests {
     
     // VWT
     
-    XCTAssertEqual(metadata.vwt.extraInhabitantCount, 2147483647)
+    var extraInhabitantCount = 2147483647
+    #if os(Linux)
+    extraInhabitantCount = 4096
+    #endif
+    
+    XCTAssertEqual(metadata.vwt.extraInhabitantCount, extraInhabitantCount)
     XCTAssertEqual(metadata.vwt.size, 24)
     XCTAssertEqual(metadata.vwt.stride, 24)
     XCTAssertEqual(metadata.vwt.flags.alignment, 8)
@@ -64,7 +69,12 @@ enum StructMetadataTests {
     
     // VWT
     
-    XCTAssertEqual(metadata.vwt.extraInhabitantCount, 2147483647)
+    var extraInhabitantCount = 2147483647
+    #if os(Linux)
+    extraInhabitantCount = 4096
+    #endif
+    
+    XCTAssertEqual(metadata.vwt.extraInhabitantCount, extraInhabitantCount)
     XCTAssertEqual(metadata.vwt.size, 24)
     XCTAssertEqual(metadata.vwt.stride, 24)
     XCTAssertEqual(metadata.vwt.flags.alignment, 8)

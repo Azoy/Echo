@@ -6,10 +6,13 @@
 //  Copyright © 2021 Alejandro Alonso. All rights reserved.
 //
 
+import Foundation
+
 #if canImport(MachO)
 import MachO
 #endif
 
+let conformanceLock = NSLock()
 var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
 
 @_cdecl("registerProtocolConformances")
@@ -21,13 +24,17 @@ func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
     
     #if canImport(ObjectiveC)
     if let objcClass = conformance.objcClass {
-      conformances[objcClass.ptr, default: []].append(conformance)
+      conformanceLock.withLock {
+        conformances[objcClass.ptr, default: []].append(conformance)
+      }
       continue
     }
     #endif
     
     if let descriptor = conformance.contextDescriptor {
-      conformances[descriptor.ptr, default: []].append(conformance)
+      conformanceLock.withLock {
+        conformances[descriptor.ptr, default: []].append(conformance)
+      }
     }
   }
 }
