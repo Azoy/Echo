@@ -62,7 +62,7 @@ static int imageCallback(struct dl_phdr_info *info, size_t size, void *data) {
   // Our string table section, i.e. the section that provides all the names for
   // the object's sections, is the shstrdx'th index into the section header
   // table.
-  const ElfW(Shdr) *stringTableSection = &sections[soHeader->e_shstrdx];
+  const ElfW(Shdr) *stringTableSection = &sections[soHeader->e_shstrndx];
   // The actual string table is located at the section offset from the base
   // address
   const char *const stringTable = so + stringTableSection->sh_offset;
