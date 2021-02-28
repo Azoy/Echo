@@ -6,8 +6,8 @@
 //  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
 //
 
-#ifndef KNOWN_METADATA
-#define KNOWN_METADATA
+#ifndef KNOWN_METADATA_H
+#define KNOWN_METADATA_H
 
 // The mangling scheme for builtin metadata is:
 // $s SYMBOL N
@@ -31,4 +31,4 @@ void *getBuiltin##NAME##Metadata();
 
 #undef BUILTIN
 
-#endif
+#endif /* KNOWN_METADATA_H */
