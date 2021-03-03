@@ -10,6 +10,8 @@ import Foundation
 
 #if canImport(MachO)
 import MachO
+#elseif canImport(Glibc)
+import Glibc
 #endif
 
 let conformanceLock = NSLock()
@@ -76,6 +78,28 @@ func lookupSection(
   }
   
   handler(section!, Int(size))
+}
+
+#endif
+
+//===----------------------------------------------------------------------===//
+// ELF Image Inspection
+//===----------------------------------------------------------------------===//
+
+#if os(Linux)
+
+let sharedObjectLock = NSLock()
+var sharedObjects = Set<String>()
+
+@_cdecl("cacheSharedObject")
+func cacheSharedObject(cString: UnsafePointer<CChar>) -> Bool {
+  let str = String(cString: cString)
+  
+  let entry = sharedObjectLock.withLock {
+    sharedObjects.insert(str)
+  }
+  
+  return entry.inserted
 }
 
 #endif

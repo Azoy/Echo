@@ -19,7 +19,7 @@ public struct ConformanceDescriptor: LayoutWrapper {
   
   let ptr: UnsafeRawPointer
   
-  public var flags: ConformanceFlags {
+  public var flags: Flags {
     layout._flags
   }
   
@@ -70,5 +70,5 @@ struct _ConformanceDescriptor {
   let _protocol: RelativeIndirectablePointer<_ProtocolDescriptor>
   let _typeRef: Int32
   let _witnessTablePattern: RelativeDirectPointer<_WitnessTable>
-  let _flags: ConformanceFlags
+  let _flags: ConformanceDescriptor.Flags
 }

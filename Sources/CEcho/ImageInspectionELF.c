@@ -6,14 +6,13 @@
 //  Copyright © 2021 Alejandro Alonso. All rights reserved.
 //
 
-#include "ImageInspection.h"
-
 #if defined(__ELF__)
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE
 #endif
 
+#include "ImageInspection.h"
 #include <fcntl.h>
 #include <elf.h>
 #include <link.h>
@@ -25,6 +24,13 @@
 // current memory. At the moment we only care about Swift's protocol
 // conformances.
 static int imageCallback(struct dl_phdr_info *info, size_t size, void *data) {
+  // Before doing anything here, check our cache to see if we've already added
+  // this image's information. If not, this will cache our image name for future
+  // iterations.
+  if (!cacheSharedObject(info->dlpi_name)) {
+    return 0;
+  }
+  
   // Our personal shared object in memory that isn't mapped into the process.
   void *so = NULL;
   const ElfW(Ehdr) *soHeader = NULL;
@@ -93,6 +99,12 @@ static int imageCallback(struct dl_phdr_info *info, size_t size, void *data) {
   return 0;
 }
 
+// Iterate through all of the current shared objects loaded into this
+// program's memory.
+void iterateSharedObjects() {
+  dl_iterate_phdr(imageCallback, NULL);
+}
+
 #define SWIFT_REGISTER_SECTION(name, handle) \
   handle(&__start_##name, &__stop_##name - &__start_##name);
 
@@ -100,10 +112,6 @@ __attribute__((__constructor__))
 static void loadImages() {
   // This will register the executable's protocol list.
   SWIFT_REGISTER_SECTION(swift5_protocol_conformances, registerProtocolConformances)
-  
-  // Iterate through all of the current shared objects loaded into this
-  // program's memory.
-  dl_iterate_phdr(imageCallback, NULL);
 }
 
 #undef SWIFT_REGISTER_SECTION

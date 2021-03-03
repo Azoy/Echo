@@ -44,6 +44,8 @@ void loadImages() {
 
 #if defined(__ELF__)
 
+#include <stdbool.h>
+
 // The Swift runtime solely uses the trick below to get all of the protocol
 // conformance sections whenever an image is loaded into. We can't do that for
 // Echo because there are plenty of conformances defined in libraries like the
@@ -69,6 +71,10 @@ SWIFT_SECTION(swift5_protocol_conformances)
 #endif
 
 #undef SWIFT_SECTION
+
+void iterateSharedObjects();
+
+extern bool cacheSharedObject(const char *name);
 
 #endif // defined(__ELF)
 
