@@ -6,6 +6,9 @@
 //  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
+#if os(Linux)
+import CEcho
+#endif
 import Foundation
 
 /// Type metadata refers to those metadata records who declare a new type in
@@ -19,16 +22,19 @@ extension TypeMetadata {
   ///       the conformances that are statically know at compile time. If you
   ///       are attempting to load libraries dynamically at runtime, this list
   ///       will update automatically, so make sure if you need up to date
-  ///       information on a type's conformances, fetch this often.
+  ///       information on a type's conformances, fetch this often. Example:
   ///
-  ///       Example:
   ///       let metadata = ...
   ///       var conformances = metadata.conformances
   ///       loadPlugin(...)
   ///       // conformances is now outdated! Refresh it by calling this again.
   ///       conformances = metadata.conformances
   public var conformances: [ConformanceDescriptor] {
-    conformanceLock.withLock {
+    #if os(Linux)
+    iterateSharedObjects()
+    #endif
+    
+    return conformanceLock.withLock {
       Echo.conformances[contextDescriptor.ptr, default: []]
     }
   }
