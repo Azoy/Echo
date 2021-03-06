@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// A metadata request is a "request" to a runtime function that returns some
@@ -11,7 +11,7 @@
 /// metadata, or non-blocking returning an abstract metadata record.
 public struct MetadataRequest {
   /// A request as represented in bits.
-  public var bits: UInt
+  public var bits: Int
   
   /// The go to metadata request kind which asks for complete metadata blocking
   /// until it returns.
@@ -23,7 +23,7 @@ public struct MetadataRequest {
   /// - Parameter state: The metadata state that is being requested.
   /// - Parameter isNonBlocking: Whether this request doesn't block or not.
   public init(state: MetadataState, isNonBlocking: Bool = false) {
-    bits = UInt(state.rawValue)
+    bits = Int(state.rawValue)
     bits |= (isNonBlocking ? 1 : 0) << 8
   }
   
@@ -45,10 +45,15 @@ public struct MetadataResponse {
   public let type: Any.Type
   
   /// The internal state value of this metadata.
-  let _state: UInt8
+  let _state: Int
+  
+  /// The metadata requested.
+  public var metadata: Metadata {
+    reflect(type)
+  }
   
   /// The metadata state of the returned metadata record.
   public var state: MetadataState {
-    MetadataState(rawValue: _state)!
+    MetadataState(rawValue: UInt8(_state))!
   }
 }

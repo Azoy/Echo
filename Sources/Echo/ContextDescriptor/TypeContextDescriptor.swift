@@ -16,8 +16,8 @@ public protocol TypeContextDescriptor: ContextDescriptor {
   /// The name of this type.
   var name: String { get }
   
-  /// The metadata access function pointer.
-  var accessor: UnsafeRawPointer { get }
+  /// The metadata access function.
+  var accessor: MetadataAccessFunction { get }
   
   /// The field descriptor that describes the stored representation of this
   /// type.
@@ -47,10 +47,11 @@ extension TypeContextDescriptor {
     return address.string
   }
   
-  /// The metadata access function pointer.
-  public var accessor: UnsafeRawPointer {
+  /// The metadata access function.
+  public var accessor: MetadataAccessFunction {
     let offset = ptr.offset(of: 3, as: Int32.self)
-    return _typeDescriptor._accessor.pointee(from: offset)!
+    let accessor = _typeDescriptor._accessor.address(from: offset)
+    return MetadataAccessFunction(ptr: accessor)
   }
   
   /// Whether or not this type has a field descriptor.
