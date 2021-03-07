@@ -19,14 +19,17 @@ public struct ConformanceDescriptor: LayoutWrapper {
   
   let ptr: UnsafeRawPointer
   
+  /// The specific flags that describe this conformance descriptor.
   public var flags: Flags {
     layout._flags
   }
   
+  /// The protocol that this type conforms to.
   public var `protocol`: ProtocolDescriptor {
     ProtocolDescriptor(ptr: address(for: \._protocol))
   }
   
+  /// The context descriptor of the type being conformed.
   public var contextDescriptor: TypeContextDescriptor? {
     let start = address(for: \._typeRef)
     
@@ -35,13 +38,15 @@ public struct ConformanceDescriptor: LayoutWrapper {
       let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
       return getContextDescriptor(at: ptr) as? TypeContextDescriptor
     case .indirectTypeDescriptor:
-      let ptr = start.relativeDirectAddress(as: UnsafeRawPointer.self)
-      return getContextDescriptor(at: ptr.load(as: UnsafeRawPointer.self)) as? TypeContextDescriptor
+      var ptr = start.relativeDirectAddress(as: UnsafeRawPointer.self)
+      ptr = ptr.load(as: UnsafeRawPointer.self)
+      return getContextDescriptor(at: ptr) as? TypeContextDescriptor
     default:
       return nil
     }
   }
   
+  /// The ObjectiveC class metadata of the type being conformed.
   #if canImport(ObjectiveC)
   public var objcClass: ObjCClassWrapperMetadata? {
     let start = address(for: \._typeRef)
@@ -64,6 +69,14 @@ public struct ConformanceDescriptor: LayoutWrapper {
     }
   }
   #endif
+  
+  /// The witness table pattern is a base witness table that this conformance
+  /// can base actual witness tables off of. In the case that this conformance
+  /// does not have a generic witness table (flags.hasGenericWitnessTable), this
+  /// witness table pattern is actually the real witness table.
+  public var witnessTablePattern: WitnessTable {
+    WitnessTable(ptr: address(for: \._witnessTablePattern))
+  }
 }
 
 struct _ConformanceDescriptor {
