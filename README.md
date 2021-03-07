@@ -2,11 +2,11 @@
 
 A complete reflection package for Swift.
 
-[![Build Status](https://travis-ci.org/Azoy/Echo.svg?branch=master)](https://travis-ci.org/Azoy/Echo)
+[![Build Status](https://travis-ci.com/Azoy/Echo.svg?branch=main)](https://travis-ci.com/Azoy/Echo/pull_requests)
 
 ## Installation
 
-Simply add the following dependency to your `Package.swift`:
+Simply add the following dependency to your  `Package.swift`:
 
 ```swift
 .package(url: "https://github.com/Azoy/Echo.git", from: "0.0.1")

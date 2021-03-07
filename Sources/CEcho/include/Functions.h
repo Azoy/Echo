@@ -87,6 +87,7 @@ extern bool swift_dynamicCast(void *dest, void *src, const void *srcType,
 #include <objc/runtime.h>
 
 extern Class swift_getInitializedObjCClass(Class c);
+
 #endif // defined(__OBJC__)
 
 #endif /* SWIFT_RUNTIME_FUNCTIONS_H */

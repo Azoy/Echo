@@ -70,6 +70,8 @@ public struct ProtocolDescriptor: ContextDescriptor, LayoutWrapper {
   }
 }
 
+extension ProtocolDescriptor: Equatable {}
+
 /// A protocol requirement that is defined in some protocol.
 public struct ProtocolRequirement: LayoutWrapper {
   typealias Layout = _ProtocolRequirement

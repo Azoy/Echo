@@ -5,6 +5,7 @@ final class EchoTests: XCTestCase {
   static var allTests = [
     // Metadata
     
+    ("testMetadataAccessFunction", testMetadataAccessFunction),
     ("testStructMetadata", testStructMetadata),
     
     // Context Descriptors
