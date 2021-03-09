@@ -49,7 +49,7 @@ extension TypeMetadata {
     case let classMetadata as ClassMetadata:
       return classMetadata.descriptor
     default:
-      fatalError()
+      fatalError("Unknown TypeMetadata conformance")
     }
   }
   
@@ -60,8 +60,10 @@ extension TypeMetadata {
       return structMetadata.fieldOffsets
     case let classMetadata as ClassMetadata:
       return classMetadata.fieldOffsets
+    case is EnumMetadata:
+      return []
     default:
-      fatalError()
+      fatalError("Unknown TypeMetadata conformance")
     }
   }
   
@@ -77,7 +79,7 @@ extension TypeMetadata {
       return ptr.offset(of: classMetadata.descriptor.genericArgumentOffset)
       
     default:
-      fatalError()
+      fatalError("Unknown TypeMetadata conformance")
     }
   }
   
@@ -125,17 +127,12 @@ extension TypeMetadata {
   public func type(
     of mangledName: UnsafeRawPointer
   ) -> Any.Type? {
-    let str = mangledName.string
-    
-    var names = [String: [UnsafeRawPointer: Any.Type?]]()
-    mangledNameLock.withLock {
-      names = mangledNames
+    let entry = mangledNameLock.withLock {
+      mangledNames[mangledName]
     }
     
-    if names[str] != nil {
-      if names[str]![ptr] != nil {
-        return names[str]![ptr]!
-      }
+    if entry != nil {
+      return entry!
     }
     
     let length = getSymbolicMangledNameLength(mangledName)
@@ -148,7 +145,7 @@ extension TypeMetadata {
     )
     
     mangledNameLock.withLock {
-      mangledNames[str, default: [:]][ptr] = type
+      mangledNames[mangledName] = type
     }
     
     return type
@@ -156,4 +153,4 @@ extension TypeMetadata {
 }
 
 let mangledNameLock = NSLock()
-var mangledNames = [String: [UnsafeRawPointer: Any.Type?]]()
+var mangledNames = [UnsafeRawPointer: Any.Type?]()
