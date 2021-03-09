@@ -19,6 +19,8 @@ public struct EnumMetadata: TypeMetadata, LayoutWrapper {
   }
 }
 
+extension EnumMetadata: Equatable {}
+
 struct _EnumMetadata {
   let _kind: Int
   let _descriptor: SignedPointer<EnumDescriptor>

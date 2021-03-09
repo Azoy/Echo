@@ -41,15 +41,17 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     superclassType.map { reflectClass($0)! }
   }
   
+  /// The offset of the address point within the class.
   public var classAddressPoint: Int {
     Int(layout._classAddressPoint)
   }
   
   /// The specific flags that describe this class metadata.
-  public var classFlags: Flags {
+  public var flags: Flags {
     layout._flags
   }
   
+  /// The size of the class including headers and suffixes.
   public var classSize: Int {
     Int(layout._classSize)
   }
@@ -108,6 +110,8 @@ public struct ClassMetadata: TypeMetadata, LayoutWrapper {
     }
   }
 }
+
+extension ClassMetadata: Equatable {}
 
 struct _ClassMetadata {
   let _kind: Int

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents generic boxes that are instantiated
@@ -29,6 +29,8 @@ public struct HeapGenericLocalVariableMetadata: Metadata, LayoutWrapper {
     reflect(boxedType)
   }
 }
+
+extension HeapGenericLocalVariableMetadata: Equatable {}
 
 struct _HeapGenericLocalVariableMetadata {
   let _kind: Int

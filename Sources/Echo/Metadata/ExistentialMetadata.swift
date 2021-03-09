@@ -59,6 +59,8 @@ public struct ExistentialMetadata: Metadata, LayoutWrapper {
   }
 }
 
+extension ExistentialMetadata: Equatable {}
+
 struct _ExistentialMetadata {
   let _kind: Int
   let _flags: ExistentialMetadata.Flags

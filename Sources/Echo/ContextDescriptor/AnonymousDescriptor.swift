@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// An anonymous descriptor describes a context which is anonymous, like a
@@ -38,3 +38,6 @@ public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
     return address.string
   }
 }
+
+extension AnonymousDescriptor: Equatable {}
+

@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a metatype wrapping some instance
@@ -24,6 +24,8 @@ public struct MetatypeMetadata: Metadata, LayoutWrapper {
     reflect(instanceType)
   }
 }
+
+extension MetatypeMetadata: Equatable {}
 
 struct _MetatypeMetadata {
   let _kind: Int

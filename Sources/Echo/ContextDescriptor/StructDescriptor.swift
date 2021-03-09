@@ -61,6 +61,8 @@ public struct StructDescriptor: TypeContextDescriptor, LayoutWrapper {
   }
 }
 
+extension StructDescriptor: Equatable {}
+
 struct _StructDescriptor {
   let _base: _TypeDescriptor
   let _numFields: UInt32

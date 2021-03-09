@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a metatype wrapping an existential
@@ -29,6 +29,8 @@ public struct ExistentialMetatypeMetadata: Metadata, LayoutWrapper {
     layout._flags
   }
 }
+
+extension ExistentialMetatypeMetadata: Equatable {}
 
 struct _ExistentialMetatypeMetadata {
   let _kind: Int

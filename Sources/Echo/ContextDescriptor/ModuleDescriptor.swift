@@ -19,6 +19,8 @@ public struct ModuleDescriptor: ContextDescriptor, LayoutWrapper {
   }
 }
 
+extension ModuleDescriptor: Equatable {}
+
 struct _ModuleDescriptor {
   let _base: _ContextDescriptor
   let _name: RelativeDirectPointer<CChar>
