@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents some opaque type in Swift. An opaque
@@ -13,3 +13,5 @@ public struct OpaqueMetadata: Metadata {
   /// Backing opaque metadata pointer.
   public let ptr: UnsafeRawPointer
 }
+
+extension OpaqueMetadata: Equatable {}

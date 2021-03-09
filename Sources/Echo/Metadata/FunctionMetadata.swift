@@ -71,6 +71,8 @@ public struct FunctionMetadata: Metadata, LayoutWrapper {
   }
 }
 
+extension FunctionMetadata: Equatable {}
+
 struct _FunctionMetadata {
   let _kind: Int
   let _flags: FunctionMetadata.Flags

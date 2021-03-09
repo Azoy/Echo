@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents a foreign reference counted object
@@ -14,6 +14,8 @@ public struct ForeignClassMetadata: Metadata, LayoutWrapper {
   /// Backing foreign class metadata pointer.
   public let ptr: UnsafeRawPointer
 }
+
+extension ForeignClassMetadata: Equatable {}
 
 struct _ForeignClassMetadata {
   let _kind: Int

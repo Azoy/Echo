@@ -74,6 +74,8 @@ public struct EnumDescriptor: TypeContextDescriptor, LayoutWrapper {
   }
 }
 
+extension EnumDescriptor: Equatable {}
+
 struct _EnumDescriptor {
   let _base: _TypeDescriptor
   let _numPayloadCasesAndPayloadSizeOffset: UInt32

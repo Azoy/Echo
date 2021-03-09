@@ -21,6 +21,8 @@ public struct ExtensionDescriptor: ContextDescriptor, LayoutWrapper {
   }
 }
 
+extension ExtensionDescriptor: Equatable {}
+
 struct _ExtensionDescriptor {
   let _base: _ContextDescriptor
   let _extendedContext: RelativeDirectPointer<CChar>

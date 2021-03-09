@@ -38,6 +38,8 @@ public struct OpaqueDescriptor: ContextDescriptor, LayoutWrapper {
   }
 }
 
+extension OpaqueDescriptor: Equatable {}
+
 struct _OpaqueDescriptor {
   let _base: _ContextDescriptor
 }

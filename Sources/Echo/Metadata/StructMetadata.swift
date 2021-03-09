@@ -37,6 +37,8 @@ public struct StructMetadata: TypeMetadata, LayoutWrapper {
   }
 }
 
+extension StructMetadata: Equatable {}
+
 struct _StructMetadata {
   let _kind: Int
   let _descriptor: SignedPointer<StructDescriptor>

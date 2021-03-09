@@ -383,6 +383,8 @@ public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   }
 }
 
+extension ClassDescriptor: Equatable {}
+
 /// Structure that helps in determining where the vtable for a class is within
 /// the type metadata and how many vtable entries there are.
 public struct VTableDescriptorHeader: LayoutWrapper {

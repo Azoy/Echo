@@ -89,6 +89,8 @@ extension TupleMetadata {
   }
 }
 
+extension TupleMetadata: Equatable {}
+
 struct _TupleMetadata {
   let _kind: Int
   let _numElements: Int

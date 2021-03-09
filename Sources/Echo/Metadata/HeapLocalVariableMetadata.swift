@@ -3,7 +3,7 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2020 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// The metadata structure that represents local variables that are heap
@@ -22,6 +22,8 @@ public struct HeapLocalVariableMetadata: Metadata, LayoutWrapper {
     layout._captureDescription
   }
 }
+
+extension HeapLocalVariableMetadata: Equatable {}
 
 struct _HeapLocalVariableMetadata {
   let _kind: Int

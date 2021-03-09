@@ -29,6 +29,8 @@ public struct ObjCClassWrapperMetadata: Metadata, LayoutWrapper {
   }
 }
 
+extension ObjCClassWrapperMetadata: Equatable {}
+
 struct _ObjCClassWrapperMetadata {
   let _kind: Int
   let _classMetadata: Any.Type
