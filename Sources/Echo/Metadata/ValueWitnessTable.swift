@@ -6,18 +6,22 @@
 //  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
+#if _ptrauth(_arm64e)
+import CEcho
+#endif
+
 /// The value witness table is a table of function pointers that describe how
 /// to properly copy, destroy, etc. memory for a given type. It also contains
 /// type layout information about the type including size, stride, and
 /// alignment.
 public struct ValueWitnessTable: LayoutWrapper {
-  typealias Layout = UnsafePointer<_ValueWitnessTable>
+  typealias Layout = SignedPointer<ValueWitnessTable>
   
   /// Backing value witness table pointer.
   let ptr: UnsafeRawPointer
   
   var _vwt: _ValueWitnessTable {
-    layout.pointee
+    layout.signed.load(as: _ValueWitnessTable.self)
   }
   
   /// Given a buffer an instance of the type in the source buffer, initialize
@@ -25,17 +29,26 @@ public struct ValueWitnessTable: LayoutWrapper {
   /// - Parameter dest: The desintation buffer.
   /// - Parameter source: The source buffer with the instance.
   public func initializeBufferWithCopyOfBuffer(
-    _ dest: UnsafeRawPointer,
-    _ source: UnsafeRawPointer
+    _ dest: UnsafeMutableRawPointer,
+    _ source: UnsafeMutableRawPointer
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_initializeBufferWithCopyOfBuffer(layout.signed, dest, source,
+                                              trailing)
+    #else
     _ = _vwt._initializeBufferWithCopyOfBuffer(dest, source, trailing)
+    #endif
   }
   
   /// Given an instance of this type, destroy it. The resulting pointer is now
   /// an invalid instance.
   /// - Parameter value: An instance of this type.
-  public func destroy(_ value: UnsafeRawPointer) {
+  public func destroy(_ value: UnsafeMutableRawPointer) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_destroy(layout.signed, value, trailing)
+    #else
     _vwt._destroy(value, trailing)
+    #endif
   }
   
   /// Given an invalid instance of this type and a valid instance of this type,
@@ -43,10 +56,14 @@ public struct ValueWitnessTable: LayoutWrapper {
   /// - Parameter dest: An invalid instance of type.
   /// - Parameter source: An instance of type.
   public func initializeWithCopy(
-    _ dest: UnsafeRawPointer,
-    _ source: UnsafeRawPointer
+    _ dest: UnsafeMutableRawPointer,
+    _ source: UnsafeMutableRawPointer
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_initializeWithCopy(layout.signed, dest, source, trailing)
+    #else
     _ = _vwt._initializeWithCopy(dest, source, trailing)
+    #endif
   }
   
   /// Given a valid instance of this type and another valid instance of this
@@ -55,10 +72,14 @@ public struct ValueWitnessTable: LayoutWrapper {
   ///                   overwritten.
   /// - Parameter source: An instance of type.
   public func assignWithCopy(
-    _ dest: UnsafeRawPointer,
-    _ source: UnsafeRawPointer
+    _ dest: UnsafeMutableRawPointer,
+    _ source: UnsafeMutableRawPointer
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_assignWithCopy(layout.signed, dest, source, trailing)
+    #else
     _ = _vwt._assignWithCopy(dest, source, trailing)
+    #endif
   }
   
   /// Given an invalid instance of this type and a valid instance of this type,
@@ -66,10 +87,14 @@ public struct ValueWitnessTable: LayoutWrapper {
   /// - Parameter dest: An invalid instance of type.
   /// - Parameter source: An instance of type.
   public func initializeWithTake(
-    _ dest: UnsafeRawPointer,
-    _ source: UnsafeRawPointer
+    _ dest: UnsafeMutableRawPointer,
+    _ source: UnsafeMutableRawPointer
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_initializeWithTake(layout.signed, dest, source, trailing)
+    #else
     _ = _vwt._initializeWithTake(dest, source, trailing)
+    #endif
   }
   
   /// Given a valid instance of this type and another valid instance of this
@@ -78,10 +103,14 @@ public struct ValueWitnessTable: LayoutWrapper {
   /// - Parameter dest: An instance of type.
   /// - Parameter source: An instance of type.
   public func assignWithTake(
-    _ dest: UnsafeRawPointer,
-    _ source: UnsafeRawPointer
+    _ dest: UnsafeMutableRawPointer,
+    _ source: UnsafeMutableRawPointer
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_assignWithTake(layout.signed, dest, source, trailing)
+    #else
     _ = _vwt._assignWithTake(dest, source, trailing)
+    #endif
   }
   
   /// Given an instance of an enum case who has a single payload of this type,
@@ -94,7 +123,12 @@ public struct ValueWitnessTable: LayoutWrapper {
     _ instance: UnsafeRawPointer,
     _ numEmptyCases: UInt32
   ) -> UInt32 {
-    _vwt._getEnumTagSinglePayload(instance, numEmptyCases, trailing)
+    #if _ptrauth(_arm64e)
+    return echo_vwt_getEnumTagSinglePayload(layout.signed, instance,
+                                            numEmptyCases, trailing)
+    #else
+    return _vwt._getEnumTagSinglePayload(instance, numEmptyCases, trailing)
+    #endif
   }
   
   /// Given some uninitialzed data of an enum case who has a single payload of
@@ -104,11 +138,16 @@ public struct ValueWitnessTable: LayoutWrapper {
   /// - Parameter numEmptyCases: The number of cases without payloads in this
   ///                            enum.
   public func storeEnumTagSinglePayload(
-    _ instance: UnsafeRawPointer,
+    _ instance: UnsafeMutableRawPointer,
     _ tag: UInt32,
     _ numEmptyCases: UInt32
   ) {
+    #if _ptrauth(_arm64e)
+    echo_vwt_storeEnumTagSinglePayload(layout.signed, instance, tag,
+                                       numEmptyCases, trailing)
+    #else
     _vwt._storeEnumTagSinglePayload(instance, tag, numEmptyCases, trailing)
+    #endif
   }
   
   /// The size in bytes that this type represents in memory.
@@ -136,55 +175,55 @@ public struct ValueWitnessTable: LayoutWrapper {
 struct _ValueWitnessTable {
   let _initializeBufferWithCopyOfBuffer: @convention(c) (
     // Destination buffer
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Source buffer
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
-  ) -> UnsafeRawPointer // returns destination value
+  ) -> UnsafeMutableRawPointer // returns destination value
   
   let _destroy: @convention(c) (
     // Value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
   ) -> ()
   
   let _initializeWithCopy: @convention(c) (
     // Destination value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Source value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
-  ) -> UnsafeRawPointer // returns destination
+  ) -> UnsafeMutableRawPointer // returns destination
   
   let _assignWithCopy: @convention(c) (
     // Destination value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Source value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
-  ) -> UnsafeRawPointer // returns destination
+  ) -> UnsafeMutableRawPointer // returns destination
   
   let _initializeWithTake: @convention(c) (
     // Destination value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Source value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
-  ) -> UnsafeRawPointer // returns destination
+  ) -> UnsafeMutableRawPointer // returns destination
   
   let _assignWithTake: @convention(c) (
     // Destination value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Source value
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Type metadata
     UnsafeRawPointer
-  ) -> UnsafeRawPointer // returns destination
+  ) -> UnsafeMutableRawPointer // returns destination
   
   let _getEnumTagSinglePayload: @convention(c) (
     // Instance of single payload enum
@@ -197,7 +236,7 @@ struct _ValueWitnessTable {
   
   let _storeEnumTagSinglePayload: @convention(c) (
     // Instance of single payload enum
-    UnsafeRawPointer,
+    UnsafeMutableRawPointer,
     // Which enum case
     UInt32,
     // Number of empty cases

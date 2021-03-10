@@ -25,7 +25,14 @@ struct RelativeIndirectablePointerIntPair<
   }
   
   func address(from ptr: UnsafeRawPointer) -> UnsafeRawPointer {
-    ptr + Int((offset & ~intMask) & ~1)
+    let offsetIndirect = offset & ~intMask
+    let addr = ptr + Int(offsetIndirect & ~1)
+    
+    if Int(offsetIndirect) & 1 == 1 {
+      return addr.load(as: UnsafeRawPointer.self)
+    } else {
+      return addr
+    }
   }
   
   func pointee(from ptr: UnsafeRawPointer) -> Pointee? {
@@ -33,12 +40,7 @@ struct RelativeIndirectablePointerIntPair<
       return nil
     }
     
-    if Int(offset) & 1 == 1 {
-      let pointer = address(from: ptr).load(as: UnsafeRawPointer.self)
-      return pointer.load(as: Pointee.self)
-    } else {
-      return address(from: ptr).load(as: Pointee.self)
-    }
+    return address(from: ptr).load(as: Pointee.self)
   }
 }
 

@@ -12,7 +12,7 @@ public struct GenericContext: LayoutWrapper {
   typealias Layout = _GenericContextDescriptorHeader
   
   /// Backing generic context pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// The number of generic parameters this context has.
   public var numParams: Int {
@@ -90,7 +90,7 @@ public struct GenericRequirementDescriptor: LayoutWrapper {
   typealias Layout = _GenericRequirementDescriptor
   
   /// Backing generic requirement descriptor pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// The flags that describe this generic requirement.
   public var flags: Flags {
@@ -115,10 +115,12 @@ public struct GenericRequirementDescriptor: LayoutWrapper {
   public var `protocol`: ProtocolDescriptor {
     assert(flags.kind == .protocol)
     let addr = address(for: \._requirement)
-    let ptr = addr.relativeIndirectableIntPairAddress(
-      as: _ProtocolDescriptor.self,
-      and: UInt8.self
-    )
+    let ptr = SignedPointer<ProtocolDescriptor>(
+      ptr: addr.relativeIndirectableIntPairAddress(
+        as: _ProtocolDescriptor.self,
+        and: UInt8.self
+      )
+    ).signed
     return ProtocolDescriptor(ptr: ptr)
   }
   
@@ -138,7 +140,7 @@ public struct TypeGenericContext: LayoutWrapper {
   typealias Layout = _TypeGenericContextDescriptorHeader
   
   /// Backing type generic context pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// Grab the base context.
   var baseContext: GenericContext {
