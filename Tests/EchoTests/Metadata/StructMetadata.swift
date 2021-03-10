@@ -33,12 +33,7 @@ enum StructMetadataTests {
     XCTAssertEqual(metadata.vwt.extraInhabitantCount, extraInhabitantCount)
     XCTAssertEqual(metadata.vwt.size, 24)
     XCTAssertEqual(metadata.vwt.stride, 24)
-    XCTAssertEqual(metadata.vwt.flags.alignment, 8)
-    XCTAssertEqual(metadata.vwt.flags.hasEnumWitnesses, false)
-    XCTAssertEqual(metadata.vwt.flags.isBitwiseTakable, true)
-    XCTAssertEqual(metadata.vwt.flags.isIncomplete, false)
-    XCTAssertEqual(metadata.vwt.flags.isPOD, false)
-    XCTAssertEqual(metadata.vwt.flags.isValueInline, true)
+    XCTAssertEqual(metadata.vwt.flags.bits, 65543)
     
     // type(of:)
     
@@ -77,12 +72,7 @@ enum StructMetadataTests {
     XCTAssertEqual(metadata.vwt.extraInhabitantCount, extraInhabitantCount)
     XCTAssertEqual(metadata.vwt.size, 24)
     XCTAssertEqual(metadata.vwt.stride, 24)
-    XCTAssertEqual(metadata.vwt.flags.alignment, 8)
-    XCTAssertEqual(metadata.vwt.flags.hasEnumWitnesses, false)
-    XCTAssertEqual(metadata.vwt.flags.isBitwiseTakable, true)
-    XCTAssertEqual(metadata.vwt.flags.isIncomplete, false)
-    XCTAssertEqual(metadata.vwt.flags.isPOD, false)
-    XCTAssertEqual(metadata.vwt.flags.isValueInline, true)
+    XCTAssertEqual(metadata.vwt.flags.bits, 65543)
   }
 }
 

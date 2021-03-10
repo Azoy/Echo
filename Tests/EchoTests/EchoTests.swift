@@ -3,20 +3,37 @@ import Echo
 
 final class EchoTests: XCTestCase {
   static var allTests = [
-    // Metadata
-    
-    ("testMetadataAccessFunction", testMetadataAccessFunction),
-    ("testStructMetadata", testStructMetadata),
-    
     // Context Descriptors
     
     ("testAnonymousDescriptor", testAnonymousDescriptor),
     ("testClassDescriptor", testClassDescriptor),
     ("testEnumDescriptor", testEnumDescriptor),
-    ("testModuleDescriptor", testModuleDescriptor),
     ("testExtensionDescriptor", testExtensionDescriptor),
+    ("testFieldDescriptor", testFieldDescriptor),
+    ("testGenericContext", testGenericContext),
+    ("testModuleDescriptor", testModuleDescriptor),
+    ("testProtocolDescriptor", testProtocolDescriptor),
     ("testStructDescriptor", testStructDescriptor),
-    ("testFieldDescriptor", testFieldDescriptor)
+    
+    // Metadata
+    
+    ("testClassMetadata", testClassMetadata),
+    ("testEnumMetadata", testEnumMetadata),
+    ("testExistentialMetadata", testExistentialMetadata),
+    ("testExistentialMetatypeMetadata", testExistentialMetatypeMetadata),
+    ("testFunctionMetadata", testFunctionMetadata),
+    ("testMetadataAccessFunction", testMetadataAccessFunction),
+    ("testMetatypeMetadata", testMetatypeMetadata),
+    ("testObjCClassWrapperMetadata", testObjCClassWrapperMetadata),
+    ("testOpaqueMetadata", testOpaqueMetadata),
+    ("testStructMetadata", testStructMetadata),
+    ("testTupleMetadata", testTupleMetadata),
+    
+    // Runtime
+    
+    ("testConformanceDescriptor", testConformanceDescriptor),
+    ("testExistentialContainer", testExistentialContainer),
+    ("testImageInspection", testImageInspection),
   ]
 }
 

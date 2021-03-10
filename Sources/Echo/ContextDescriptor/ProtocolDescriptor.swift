@@ -77,7 +77,7 @@ public struct ProtocolRequirement: LayoutWrapper {
   typealias Layout = _ProtocolRequirement
   
   /// Backing protocol requirement pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// The flags that describe this protocol requirement.
   public var flags: Flags {

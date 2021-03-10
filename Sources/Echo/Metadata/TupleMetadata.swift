@@ -20,18 +20,7 @@ public struct TupleMetadata: Metadata, LayoutWrapper {
   
   /// An array of labels for each element in this tuple.
   public var labels: [String] {
-    // If we don't have a label pointer, then this tuple has no labels at all.
-    guard let labels = layout._labels else {
-      var result = [String]()
-      
-      for i in 0 ..< numElements {
-        result.append("\(i)")
-      }
-      
-      return result
-    }
-    
-    let split = labels.string.split(
+    let split = layout._labels?.string.split(
       separator: " ",
       maxSplits: numElements,
       omittingEmptySubsequences: false
@@ -40,10 +29,10 @@ public struct TupleMetadata: Metadata, LayoutWrapper {
     var result = [String]()
     
     for i in 0 ..< numElements {
-      if split[i] == "" {
-        result.append("\(i)")
-      } else {
+      if let split = split, split[i] != "" {
         result.append(String(split[i]))
+      } else {
+        result.append("\(i)")
       }
     }
     
@@ -53,14 +42,14 @@ public struct TupleMetadata: Metadata, LayoutWrapper {
   /// An array of elements that describe each tuple more in depth, including
   /// offset and type.
   public var elements: [Element] {
-    var result = [Element]()
-    
-    for i in 0 ..< numElements {
-      let address = trailing.offset(of: i, as: _TupleElement.self)
-      result.append(Element(ptr: address))
+    return Array(unsafeUninitializedCapacity: numElements) {
+      for i in 0 ..< numElements {
+        let address = trailing.offset(of: i, as: _TupleElement.self)
+        $0[i] = Element(ptr: address)
+      }
+      
+      $1 = numElements
     }
-    
-    return result
   }
 }
 
@@ -70,7 +59,7 @@ extension TupleMetadata {
     typealias Layout = _TupleElement
     
     /// Backing tuple element pointer.
-    public let ptr: UnsafeRawPointer
+    let ptr: UnsafeRawPointer
     
     /// The type for this tuple element.
     public var type: Any.Type {

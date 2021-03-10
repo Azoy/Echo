@@ -11,7 +11,7 @@ public struct FieldDescriptor: LayoutWrapper {
   typealias Layout = _FieldDescriptor
   
   /// Backing field descriptor pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// Whether or not this field descriptor has a mangled name.
   public var hasMangledTypeName: Bool {
@@ -61,7 +61,7 @@ public struct FieldRecord: LayoutWrapper {
   typealias Layout = _FieldRecord
   
   /// Backing field record pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
   
   /// The flags that describe this field record.
   public var flags: Flags {
