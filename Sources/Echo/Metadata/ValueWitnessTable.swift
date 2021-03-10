@@ -124,10 +124,10 @@ public struct ValueWitnessTable: LayoutWrapper {
     _ numEmptyCases: UInt32
   ) -> UInt32 {
     #if _ptrauth(_arm64e)
-    echo_vwt_getEnumTagSinglePayload(layout.signed, instance, numEmptyCases,
-                                     trailing)
+    return echo_vwt_getEnumTagSinglePayload(layout.signed, instance,
+                                            numEmptyCases, trailing)
     #else
-    _vwt._getEnumTagSinglePayload(instance, numEmptyCases, trailing)
+    return _vwt._getEnumTagSinglePayload(instance, numEmptyCases, trailing)
     #endif
   }
   

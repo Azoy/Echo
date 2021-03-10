@@ -30,9 +30,9 @@ public struct EnumValueWitnessTable: LayoutWrapper {
   /// - Returns: The tag number for which case is being inhabited.
   public func getEnumTag(for instance: UnsafeRawPointer) -> UInt32 {
     #if _ptrauth(_arm64e)
-    echo_vwt_getEnumTag(layout.signed, instance, trailing)
+    return echo_vwt_getEnumTag(layout.signed, instance, trailing)
     #else
-    _enumVwt._getEnumTag(instance, trailing)
+    return _enumVwt._getEnumTag(instance, trailing)
     #endif
   }
   
