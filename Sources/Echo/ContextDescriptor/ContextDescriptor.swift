@@ -48,6 +48,8 @@ extension ContextDescriptor {
       return MemoryLayout<_EnumDescriptor>.size
     case is ExtensionDescriptor:
       return MemoryLayout<_ExtensionDescriptor>.size
+    case is OpaqueDescriptor:
+      return MemoryLayout<_OpaqueDescriptor>.size
     case is StructDescriptor:
       return MemoryLayout<_StructDescriptor>.size
     default:

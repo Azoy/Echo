@@ -79,7 +79,7 @@ public struct ForeignMetadataInitialization: LayoutWrapper {
   typealias Layout = _ForeignMetadataInitialization
   
   /// Backing ForeignMetadataInitialzation pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
 }
 
 /// Structure that contains information needed to perform initialization of
@@ -88,7 +88,7 @@ public struct SingletonMetadataInitialization: LayoutWrapper {
   typealias Layout = _SingletonMetadataInitialization
   
   /// Backing SingletonMetadataInitialization pointer.
-  public let ptr: UnsafeRawPointer
+  let ptr: UnsafeRawPointer
 }
 
 struct _TypeDescriptor {
