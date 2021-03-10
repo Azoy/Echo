@@ -92,5 +92,6 @@ struct _TupleElement {
   let _offset: Int
   #else
   let _offset: UInt32
+  let _padding: UInt32
   #endif
 }

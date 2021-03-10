@@ -121,11 +121,8 @@ enum ClassMetadataTests {
     let metadata = maybeMetadata!
     
     XCTAssertEqual(metadata.classAddressPoint, 32767)
-    XCTAssertEqual(metadata.classSize, 540146336)
     XCTAssertEqual(metadata.instanceAddressPoint, 32767)
     XCTAssertEqual(metadata.instanceAlignmentMask, 32767)
-    XCTAssertEqual(metadata.instanceSize, 2155023776)
-    XCTAssertEqual(metadata.flags.bits, 2155023776)
     XCTAssertEqual(metadata.isSwiftClass, false)
   }
   #endif
