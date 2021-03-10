@@ -20,7 +20,19 @@ struct SignedPointer<Pointee> {
 
 // Swift type descriptors are signed with the process independent data key.
 #if _ptrauth(_arm64e)
+extension SignedPointer where Pointee == ProtocolDescriptor {
+  var signed: UnsafeRawPointer {
+    __ptrauth_strip_asda(ptr)!
+  }
+}
+
 extension SignedPointer where Pointee: TypeContextDescriptor {
+  var signed: UnsafeRawPointer {
+    __ptrauth_strip_asda(ptr)!
+  }
+}
+
+extension SignedPointer where Pointee == ValueWitnessTable {
   var signed: UnsafeRawPointer {
     __ptrauth_strip_asda(ptr)!
   }
