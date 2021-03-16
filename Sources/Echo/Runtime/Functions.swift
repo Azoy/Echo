@@ -37,16 +37,19 @@ func _swift_makeBoxUnique(
   alignMask: UInt
 ) -> BoxPair
 
+/*
 public func swift_projectBox(
   for heapObj: UnsafePointer<HeapObject>
 ) -> UnsafeRawPointer {
   swift_projectBox(heapObj.raw.mutable)!.raw
 }
+ */
 
 //===----------------------------------------------------------------------===//
 // HeapObject Functions
 //===----------------------------------------------------------------------===//
 
+/*
 public func swift_allocObject(
   for type: ClassMetadata,
   size: Int,
@@ -62,15 +65,16 @@ public func swift_allocObject(
 public func swift_release(_ heapObj: UnsafePointer<HeapObject>) {
   swift_release(heapObj.raw.mutable)
 }
+ */
+
+//===----------------------------------------------------------------------===//
+// Mangling Functions
+//===----------------------------------------------------------------------===//
 
 struct TypeNamePair {
   public let data: UnsafePointer<CChar>
   public let length: UInt
 }
-
-//===----------------------------------------------------------------------===//
-// Mangling Functions
-//===----------------------------------------------------------------------===//
 
 @_silgen_name("swift_getTypeName")
 func _swift_getTypeName(
@@ -78,6 +82,11 @@ func _swift_getTypeName(
   qualified: Bool
 ) -> TypeNamePair
 
+/// Gets the types name, either qualified (full name representation), or non
+/// qualified (just the type name).
+/// - Parameter type: Type to get the name of.
+/// - Parameter qualified: Whether or not this name should be qualified.
+/// - Returns: A string who contains the name of the type.
 public func swift_getTypeName(
   for type: Any.Type,
   qualified: Bool
@@ -90,6 +99,11 @@ public func swift_getTypeName(
   )
 }
 
+/// Gets the types name, either qualified (full name representation), or non
+/// qualified (just the type name).
+/// - Parameter metadata: Type metadata to get the name of.
+/// - Parameter qualified: Whether or not this name should be qualified.
+/// - Returns: A string who contains the name of the type metadata.
 public func swift_getTypeName(
   for metadata: Metadata,
   qualified: Bool
@@ -101,6 +115,11 @@ public func swift_getTypeName(
 // Protocol Functions
 //===----------------------------------------------------------------------===//
 
+/// Checks whether the type conforms to the given protocol.
+/// - Parameter type: Type to check conformance of.
+/// - Parameter protocol: The protocol to check to see if the type conforms to.
+/// - Returns: A witness table of the conformance if it does conform, or nil if
+///            it doesn't conform.
 public func swift_conformsToProtocol(
   type: Any.Type,
   protocol: ProtocolDescriptor
@@ -115,4 +134,16 @@ public func swift_conformsToProtocol(
   }
   
   return WitnessTable(ptr: wtPtr!)
+}
+
+/// Checks whether the type conforms to the given protocol.
+/// - Parameter metadata: Type metadata to check conformance of.
+/// - Parameter protocol: The protocol to check to see if the type conforms to.
+/// - Returns: A witness table of the conformance if it does conform, or nil if
+///            it doesn't conform.
+public func swift_conformsToProtocol(
+  metadata: Metadata,
+  protocol: ProtocolDescriptor
+) -> WitnessTable? {
+  swift_conformsToProtocol(type: metadata.type, protocol: `protocol`)
 }

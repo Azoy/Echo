@@ -7,6 +7,13 @@
 //
 
 /// A special descriptor that describes a type's fields.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct FieldDescriptor: LayoutWrapper {
   typealias Layout = _FieldDescriptor
   
@@ -57,6 +64,13 @@ public struct FieldDescriptor: LayoutWrapper {
 }
 
 /// A record that describes a single stored property or an enum case.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct FieldRecord: LayoutWrapper {
   typealias Layout = _FieldRecord
   

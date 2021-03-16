@@ -10,6 +10,13 @@
 
 /// An any existential container holds the necessary information for any value
 /// with type Any. I.e. the type erased type.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct AnyExistentialContainer {
   /// The storage needed to house the value of said type. This can be stored
   /// inline with all the data necessary to represent said type in 3 words, or
@@ -65,6 +72,13 @@ public struct AnyExistentialContainer {
 /// An existential container is a type in Swift that contains some struct or
 /// class with information of what the type it's containing is, and the witness
 /// tables needed that the existential (protocol) is.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ExistentialContainer {
   /// The base any existential, also known as Any.
   public var base: AnyExistentialContainer
@@ -77,6 +91,13 @@ public struct ExistentialContainer {
 /// class with information of what the type it's containing is, and the witness
 /// tables needed that the existential (protocol) is. Dual supports an
 /// existential that is composed of two protocols. E.g. X & Y
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct DualExistentialContainer {
   /// The base any existential, also known as Any.
   public var base: AnyExistentialContainer

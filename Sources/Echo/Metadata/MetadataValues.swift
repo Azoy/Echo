@@ -185,24 +185,26 @@ public enum FunctionConvention: UInt8 {
   case c = 3
 }
 
-/// The flags that represent some function parameter.
-public struct ParamFlags {
-  /// Flags as represented in bits.
-  public let bits: UInt32
-  
-  /// The value ownership kind for this parameter.
-  public var valueOwnership: ValueOwnership {
-    ValueOwnership(rawValue: UInt8(bits & 0x7F))!
-  }
-  
-  /// Whether or not this parameter is variadic. E.g. Int...
-  public var isVariadic: Bool {
-    bits & 0x80 != 0
-  }
-  
-  /// Whether or not this parameter is marked @autoclosure
-  public var isAutoclosure: Bool {
-    bits & 0x100 != 0
+extension FunctionMetadata {
+  /// The flags that represent some function parameter.
+  public struct ParamFlags {
+    /// Flags as represented in bits.
+    public let bits: UInt32
+    
+    /// The value ownership kind for this parameter.
+    public var valueOwnership: ValueOwnership {
+      ValueOwnership(rawValue: UInt8(bits & 0x7F))!
+    }
+    
+    /// Whether or not this parameter is variadic. E.g. Int...
+    public var isVariadic: Bool {
+      bits & 0x80 != 0
+    }
+    
+    /// Whether or not this parameter is marked @autoclosure
+    public var isAutoclosure: Bool {
+      bits & 0x100 != 0
+    }
   }
 }
 

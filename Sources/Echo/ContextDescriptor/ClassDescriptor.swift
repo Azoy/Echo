@@ -14,6 +14,13 @@ import CEcho
 #endif
 
 /// A class descriptor that descibes some class context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ClassDescriptor: TypeContextDescriptor, LayoutWrapper {
   typealias Layout = _ClassDescriptor
   

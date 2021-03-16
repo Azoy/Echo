@@ -8,6 +8,13 @@
 
 /// The metadata structure that represents generic boxes that are instantiated
 /// at runtime.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct HeapGenericLocalVariableMetadata: Metadata, LayoutWrapper {
   typealias Layout = _HeapGenericLocalVariableMetadata
   

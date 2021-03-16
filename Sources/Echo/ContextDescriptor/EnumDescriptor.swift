@@ -7,6 +7,13 @@
 //
 
 /// An enum descriptor that describes some enum context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct EnumDescriptor: TypeContextDescriptor, LayoutWrapper {
   typealias Layout = _EnumDescriptor
   

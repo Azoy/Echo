@@ -8,6 +8,13 @@
 
 /// The metadata structure that represents a metatype wrapping some instance
 /// type.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct MetatypeMetadata: Metadata, LayoutWrapper {
   typealias Layout = _MetatypeMetadata
   

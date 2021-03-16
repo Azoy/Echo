@@ -3,11 +3,18 @@
 //  Echo
 //
 //  Created by Alejandro Alonso
-//  Copyright © 2019 - 2020 Alejandro Alonso. All rights reserved.
+//  Copyright © 2019 - 2021 Alejandro Alonso. All rights reserved.
 //
 
 /// Some object whose value is being stored on the heap and is being reference
 /// counted by the Swift runtime.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct HeapObject {
   /// The type being stored in this heap object.
   public let type: Any.Type

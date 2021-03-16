@@ -9,6 +9,13 @@
 /// A type context descriptor is a context descriptor who defines some new type.
 /// This includes structs, classes, and enums. Protocols also define a new type,
 /// but aren't considered type context descriptors.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public protocol TypeContextDescriptor: ContextDescriptor {
   /// The flags that describe this type context descriptor.
   var typeFlags: TypeContextDescriptorFlags { get }

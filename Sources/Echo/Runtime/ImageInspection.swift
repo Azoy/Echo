@@ -14,6 +14,21 @@ import MachO
 import Glibc
 #endif
 
+let protocolLock = NSLock()
+var protocols = Set<UnsafeRawPointer>()
+
+@_cdecl("registerProtocols")
+func registerProtocols(section: UnsafeRawPointer, size: Int) {
+  for i in 0 ..< size / 4 {
+    let start = section.offset(of: i, as: Int32.self)
+    let ptr = start.relativeDirectAddress(as: _ProtocolDescriptor.self)
+    
+    _ = protocolLock.withLock {
+      protocols.insert(ptr)
+    }
+  }
+}
+
 let conformanceLock = NSLock()
 var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
 
@@ -37,6 +52,21 @@ func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
       conformanceLock.withLock {
         conformances[descriptor.ptr, default: []].append(conformance)
       }
+    }
+  }
+}
+
+let typeLock = NSLock()
+var types = Set<UnsafeRawPointer>()
+
+@_cdecl("registerTypeMetadata")
+func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
+  for i in 0 ..< size / 4 {
+    let start = section.offset(of: i, as: Int32.self)
+    let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
+    
+    _ = typeLock.withLock {
+      types.insert(ptr)
     }
   }
 }

@@ -7,6 +7,13 @@
 //
 
 /// The metadata structure that represents a `struct` type in Swift.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct StructMetadata: TypeMetadata, LayoutWrapper {
   typealias Layout = _StructMetadata
   

@@ -14,6 +14,13 @@ import CEcho
 /// to properly copy, destroy, etc. memory for a given type. It also contains
 /// type layout information about the type including size, stride, and
 /// alignment.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ValueWitnessTable: LayoutWrapper {
   typealias Layout = SignedPointer<ValueWitnessTable>
   

@@ -7,6 +7,13 @@
 //
 
 /// A struct descriptor that describes some structure context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct StructDescriptor: TypeContextDescriptor, LayoutWrapper {
   typealias Layout = _StructDescriptor
   

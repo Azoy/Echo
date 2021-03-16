@@ -8,6 +8,13 @@
 
 /// The metadata structure that represents a metatype wrapping an existential
 /// type.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct ExistentialMetatypeMetadata: Metadata, LayoutWrapper {
   typealias Layout = _ExistentialMetatypeMetadata
   

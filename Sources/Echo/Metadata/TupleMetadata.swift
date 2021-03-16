@@ -7,6 +7,13 @@
 //
 
 /// The metadata structure that represents a tuple type in Swift.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct TupleMetadata: Metadata, LayoutWrapper {
   typealias Layout = _TupleMetadata
   

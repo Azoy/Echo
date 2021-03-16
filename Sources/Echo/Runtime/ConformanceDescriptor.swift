@@ -14,6 +14,13 @@ import ObjectiveC
 /// Information includes what type is being conformed to what protocol, some
 /// flags like if the conformance is retroactive, has conditional requirements,
 /// etc.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ConformanceDescriptor: LayoutWrapper {
   typealias Layout = _ConformanceDescriptor
   

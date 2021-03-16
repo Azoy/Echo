@@ -13,6 +13,13 @@ import Foundation
 
 /// Type metadata refers to those metadata records who declare a new type in
 /// Swift. Said metadata records only refer to structs, classes, and enums.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public protocol TypeMetadata: Metadata {}
 
 extension TypeMetadata {

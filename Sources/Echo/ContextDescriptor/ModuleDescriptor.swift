@@ -7,6 +7,13 @@
 //
 
 /// A module descriptor that describes some Swift module.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ModuleDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _ModuleDescriptor
   

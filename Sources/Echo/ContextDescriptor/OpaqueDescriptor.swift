@@ -7,6 +7,13 @@
 //
 
 /// Represents a descriptor for an opaque type.
+///
+/// ABI Stability: Stable since the following
+///
+///     |    macOS    |  iOS/tvOS  |  watchOS  | Linux | Windows |
+///     |-------------|------------|-----------|-------|---------|
+///     | 10.15 <= .3 | 13.0 <= .3 | 6.0 <= .1 | NA    | NA      |
+///
 public struct OpaqueDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _OpaqueDescriptor
   

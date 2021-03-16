@@ -8,21 +8,21 @@
 
 // This isn't used anywhere yet... ?
 struct FieldType {
-  public let bits: UInt
+  let bits: UInt
   
-  public var isIndirect: Bool {
+  var isIndirect: Bool {
     bits & 0x1 != 0
   }
   
-  public var isWeak: Bool {
+  var isWeak: Bool {
     bits & 0x2 != 0
   }
   
-  public var metadata: Metadata {
+  var metadata: Metadata {
     reflect(type)
   }
   
-  public var type: Any.Type {
+  var type: Any.Type {
     let typeMask = UInt.max & ~UInt(MemoryLayout<UnsafeRawPointer>.alignment - 1)
     let address = UnsafeRawPointer(bitPattern: bits & typeMask)!
     return unsafeBitCast(address, to: Any.Type.self)
