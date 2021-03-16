@@ -80,6 +80,18 @@ static int imageCallback(struct dl_phdr_info *info, size_t size, void *data) {
     // Our actual section name is in the string table at our index.
     const char *sectionName = stringTable + sectionNameIdx;
     
+    // We found Swift's protocol section!
+    if (!strcmp(sectionName, "swift5_protocols")) {
+      size_t sectionAddr = sections[i].sh_addr;
+      // The actual conformances section within the program's memory is located
+      // at the base address of this shared object's memory plus the vaddr
+      // provided by the section header.
+      const void *protos = (const void *)(info->dlpi_addr + sectionAddr);
+      
+      registerProtocols(protos, sections[i].sh_size);
+      continue;
+    }
+    
     // We found Swift's protocol conformances section!
     if (!strcmp(sectionName, "swift5_protocol_conformances")) {
       size_t sectionAddr = sections[i].sh_addr;
@@ -89,7 +101,19 @@ static int imageCallback(struct dl_phdr_info *info, size_t size, void *data) {
       const void *conformances = (const void *)(info->dlpi_addr + sectionAddr);
       
       registerProtocolConformances(conformances, sections[i].sh_size);
-      break;
+      continue;
+    }
+    
+    // We found Swift's type metadata section!
+    if (!strcmp(sectionName, "swift5_type_metadata")) {
+      size_t sectionAddr = sections[i].sh_addr;
+      // The actual conformances section within the program's memory is located
+      // at the base address of this shared object's memory plus the vaddr
+      // provided by the section header.
+      const void *types = (const void *)(info->dlpi_addr + sectionAddr);
+      
+      registerTypeMetadata(types, sections[i].sh_size);
+      continue;
     }
   }
   
@@ -111,7 +135,13 @@ void iterateSharedObjects() {
 __attribute__((__constructor__))
 static void loadImages() {
   // This will register the executable's protocol list.
+  SWIFT_REGISTER_SECTION(swift5_protocols, registerProtocols)
+  
+  // This will register the executable's protocol conformance list.
   SWIFT_REGISTER_SECTION(swift5_protocol_conformances, registerProtocolConformances)
+  
+  // This will register the executable's type metadata list.
+  SWIFT_REGISTER_SECTION(swift5_type_metadata, registerTypeMetadata)
 }
 
 #undef SWIFT_REGISTER_SECTION

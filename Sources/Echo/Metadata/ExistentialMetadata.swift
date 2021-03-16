@@ -8,6 +8,13 @@
 
 /// The metadata structure that represents some existential type, mainly
 /// `protocol`s, in Swift.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct ExistentialMetadata: Metadata, LayoutWrapper {
   typealias Layout = _ExistentialMetadata
   

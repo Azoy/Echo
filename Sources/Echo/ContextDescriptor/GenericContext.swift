@@ -8,6 +8,13 @@
 
 /// A generic context describes the generic information about some generic
 /// context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct GenericContext: LayoutWrapper {
   typealias Layout = _GenericContextDescriptorHeader
   
@@ -86,6 +93,13 @@ public struct GenericContext: LayoutWrapper {
 
 /// This descriptor describes any generic requirement in either a generic
 /// context or in a protocol's requirement signature.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct GenericRequirementDescriptor: LayoutWrapper {
   typealias Layout = _GenericRequirementDescriptor
   
@@ -136,6 +150,13 @@ public struct GenericRequirementDescriptor: LayoutWrapper {
 /// that define some type in Swift. Currently that includes structs, classes,
 /// and enums. While protocols do define a type, they aren't considered type
 /// contexts.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct TypeGenericContext: LayoutWrapper {
   typealias Layout = _TypeGenericContextDescriptorHeader
   
@@ -193,6 +214,13 @@ public struct TypeGenericContext: LayoutWrapper {
 }
 
 /// An instantiation pattern for metadata.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct GenericMetadataPattern: LayoutWrapper {
   typealias Layout = _GenericMetadataPattern
   

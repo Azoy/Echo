@@ -11,7 +11,9 @@
 
 #include <stddef.h>
 
+extern void registerProtocols(const char *section, size_t size);
 extern void registerProtocolConformances(const char *section, size_t size);
+extern void registerTypeMetadata(const char *section, size_t size);
 
 //===----------------------------------------------------------------------===//
 // Mach-O Image Inspection
@@ -29,6 +31,12 @@ extern void lookupSection(const struct mach_header *header, const char *segment,
 void _loadImageFunc(const struct mach_header *header, intptr_t size) {
   lookupSection(header, "__TEXT", "__swift5_proto",
                 registerProtocolConformances);
+  
+  lookupSection(header, "__TEXT", "__swift5_protos",
+                registerProtocols);
+  
+  lookupSection(header, "__TEXT", "__swift5_types",
+                registerTypeMetadata);
 }
 
 __attribute((__constructor__))
@@ -64,7 +72,9 @@ void loadImages() {
 extern "C" {
 #endif
 
+SWIFT_SECTION(swift5_protocols)
 SWIFT_SECTION(swift5_protocol_conformances)
+SWIFT_SECTION(swift5_type_metadata)
 
 #if defined(__cplusplus)
 } // extern "C"

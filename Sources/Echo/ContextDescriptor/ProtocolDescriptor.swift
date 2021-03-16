@@ -7,6 +7,13 @@
 //
 
 /// A protocol descriptor that describes some protocol context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ProtocolDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _ProtocolDescriptor
   
@@ -73,6 +80,13 @@ public struct ProtocolDescriptor: ContextDescriptor, LayoutWrapper {
 extension ProtocolDescriptor: Equatable {}
 
 /// A protocol requirement that is defined in some protocol.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ProtocolRequirement: LayoutWrapper {
   typealias Layout = _ProtocolRequirement
   

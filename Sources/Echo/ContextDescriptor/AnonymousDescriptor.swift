@@ -8,6 +8,13 @@
 
 /// An anonymous descriptor describes a context which is anonymous, like a
 /// function or a private declaration will have an anonymous parent context.
+///
+/// ABI Stability:
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct AnonymousDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _ContextDescriptor
   

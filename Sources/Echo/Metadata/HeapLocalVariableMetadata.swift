@@ -8,6 +8,13 @@
 
 /// The metadata structure that represents local variables that are heap
 /// allocated.
+///
+/// ABI Stability: Unstable across all platforms
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | NA    | NA       | NA      | NA    | NA      |
+///
 public struct HeapLocalVariableMetadata: Metadata, LayoutWrapper {
   typealias Layout = _HeapLocalVariableMetadata
   

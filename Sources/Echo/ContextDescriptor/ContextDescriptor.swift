@@ -8,6 +8,13 @@
 
 /// A context descriptor describes any entity in Swift that contains other
 /// types or contexts.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public protocol ContextDescriptor {
   /// Backing context descriptor pointer.
   var ptr: UnsafeRawPointer { get }

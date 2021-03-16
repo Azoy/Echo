@@ -8,6 +8,13 @@
 
 /// The value witness table for enums that have enum specific value witness
 /// functions.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct EnumValueWitnessTable: LayoutWrapper {
   typealias Layout = SignedPointer<ValueWitnessTable>
   

@@ -7,6 +7,13 @@
 //
 
 /// An extension descriptor that describes some extension context.
+///
+/// ABI Stability: Stable since the following
+///
+///     | macOS | iOS/tvOS | watchOS | Linux | Windows |
+///     |-------|----------|---------|-------|---------|
+///     | 10.14 | 12.2     | 5.2     | NA    | NA      |
+///
 public struct ExtensionDescriptor: ContextDescriptor, LayoutWrapper {
   typealias Layout = _ExtensionDescriptor
   
