@@ -3,7 +3,7 @@ name: Documentation
 on:
   push:
     branches:
-      main
+      - main
     paths:
       - .github/workflows/documentation.yml
       - Sources/Echo/**.swift
@@ -20,9 +20,10 @@ jobs:
         with:
           inputs: "Sources/Echo"
           module-name: Echo
+          output: "Documentation"
       - name: Upload
         uses: SwiftDocOrg/github-wiki-publish-action@v1
         with:
-          path: "./.build/documentation"
+          path: "Documentation"
         env:
           GH_PERSONAL_ACCESS_TOKEN: ${{ secrets.GH_PERSONAL_ACCESS_TOKEN }}
