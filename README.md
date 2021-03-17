@@ -1,6 +1,6 @@
 # Echo
 
-[![Build Status](https://travis-ci.com/Azoy/Echo.svg?branch=main)](https://travis-ci.com/Azoy/Echo/pull_requests)
+[![Build Status](https://travis-ci.com/Azoy/Echo.svg?branch=main)](https://travis-ci.com/github/Azoy/Echo/pull_requests)
 
 A complete reflection package for Swift.
 
