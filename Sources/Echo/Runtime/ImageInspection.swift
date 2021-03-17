@@ -14,8 +14,42 @@ import MachO
 import Glibc
 #endif
 
+//===----------------------------------------------------------------------===//
+// __swift5_protos/swift5_protocols
+//===----------------------------------------------------------------------===//
+
+/// The list of all protocols this program has loaded.
+///
+/// NOTE: This list is populated once before the program starts with all of
+///       the protocols that are statically know at compile time. If you
+///       are attempting to load libraries dynamically at runtime, this list
+///       will update automatically, so make sure if you need up to date
+///       information on these protocols, fetch this often. Example:
+///
+///       var protocols = Echo.protocols
+///       loadPlugin(...)
+///       // protocols is now outdated! Refresh it by calling this again.
+///       protocols = Echo.protocols
+public var protocols: [ProtocolDescriptor] {
+  #if os(Linux)
+  iterateSharedObjects()
+  #endif
+  
+  let protos = protocolLock.withLock {
+    _protocols
+  }
+  
+  return Array(unsafeUninitializedCapacity: protos.count) {
+    for (i, proto) in protos.enumerated() {
+      $0[i] = ProtocolDescriptor(ptr: proto)
+    }
+    
+    $1 = protos.count
+  }
+}
+
 let protocolLock = NSLock()
-var protocols = Set<UnsafeRawPointer>()
+var _protocols = Set<UnsafeRawPointer>()
 
 @_cdecl("registerProtocols")
 func registerProtocols(section: UnsafeRawPointer, size: Int) {
@@ -24,10 +58,14 @@ func registerProtocols(section: UnsafeRawPointer, size: Int) {
     let ptr = start.relativeDirectAddress(as: _ProtocolDescriptor.self)
     
     _ = protocolLock.withLock {
-      protocols.insert(ptr)
+      _protocols.insert(ptr)
     }
   }
 }
+
+//===----------------------------------------------------------------------===//
+// __swift5_proto/swift5_protocol_conformances
+//===----------------------------------------------------------------------===//
 
 let conformanceLock = NSLock()
 var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
@@ -56,8 +94,43 @@ func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
   }
 }
 
+//===----------------------------------------------------------------------===//
+// __swift5_types/swift5_type_metadata
+//===----------------------------------------------------------------------===//
+
+/// The list of all protocols this program has loaded.
+///
+/// NOTE: This list is populated once before the program starts with all of
+///       the protocols that are statically know at compile time. If you
+///       are attempting to load libraries dynamically at runtime, this list
+///       will update automatically, so make sure if you need up to date
+///       information on these protocols, fetch this often. Example:
+///
+///       var protocols = Echo.protocols
+///       loadPlugin(...)
+///       // protocols is now outdated! Refresh it by calling this again.
+///       protocols = Echo.protocols
+public var types: [ContextDescriptor] {
+  #if os(Linux)
+  iterateSharedObjects()
+  #endif
+  
+  let types = typeLock.withLock {
+    _types
+  }
+  
+  var result = [ContextDescriptor]()
+  result.reserveCapacity(types.count)
+  
+  for type in types {
+    result.append(getContextDescriptor(at: type))
+  }
+  
+  return result
+}
+
 let typeLock = NSLock()
-var types = Set<UnsafeRawPointer>()
+var _types = Set<UnsafeRawPointer>()
 
 @_cdecl("registerTypeMetadata")
 func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
@@ -66,7 +139,7 @@ func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
     let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
     
     _ = typeLock.withLock {
-      types.insert(ptr)
+      _types.insert(ptr)
     }
   }
 }
