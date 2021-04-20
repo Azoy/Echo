@@ -49,19 +49,28 @@ public func swift_projectBox(
 // HeapObject Functions
 //===----------------------------------------------------------------------===//
 
-/*
+/// Allocates a new reference counted class instance.
+/// - Parameter type: The class metadata to allocate an instance for.
+/// - Returns: A pointer to the heap object. This is intentionally left raw
+///            because there is almost always more initialization that needs to
+///            happen after allocation.
 public func swift_allocObject(
   for type: ClassMetadata,
   size: Int,
-  alignmentMask: Int
-) -> UnsafeRawPointer? {
-  if let object = swift_allocObject(type.ptr.mutable, size, alignmentMask) {
-    return object.raw
-  }
+  alignment: Int
+) -> UnsafeRawPointer {
+  let object = swift_allocObject(
+    type.ptr.mutable,
+    size,
+    alignment
+  )
   
-  return nil
+  // We unsafely unwrap this here because if the above operation fails to
+  // allocate, the Swift runtime will have crashed before we unwrap.
+  return object.unsafelyUnwrapped.raw
 }
 
+/*
 public func swift_release(_ heapObj: UnsafePointer<HeapObject>) {
   swift_release(heapObj.raw.mutable)
 }
