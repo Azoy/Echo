@@ -147,5 +147,11 @@ public func reflectStruct(_ instance: Any) -> StructMetadata? {
 /// - Parameter instance: Some instance of `Any`
 /// - Returns: The existential container that said instance represents.
 public func container(for instance: Any) -> AnyExistentialContainer {
-  unsafeBitCast(instance, to: AnyExistentialContainer.self)
+  var box = unsafeBitCast(instance, to: AnyExistentialContainer.self)
+  
+  while box.type == Any.self {
+    box = box.projectValue().load(as: AnyExistentialContainer.self)
+  }
+  
+  return box
 }

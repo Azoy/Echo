@@ -32,5 +32,17 @@ extension EchoTests {
     XCTAssertEqual(zPtr.load(as: CheeseWheel.self), CheeseWheel())
     XCTAssertEqual(zBox.witnessTables.0.conformanceDescriptor.protocol.name, "DumbWheel")
     XCTAssertEqual(zBox.witnessTables.1.conformanceDescriptor.protocol.name, "Wheel")
+    
+    // Wrapped existentials
+    
+    func wrap<T>(_ x: T) -> Any {
+      x
+    }
+    
+    let wrapped = wrap(wrap(wrap(wrap(128))))
+    var wrappedBox = container(for: wrapped)
+    let wrappedPtr = wrappedBox.projectValue()
+    XCTAssert(wrappedBox.type == Int.self)
+    XCTAssertEqual(wrappedPtr.load(as: Int.self), 128)
   }
 }
