@@ -42,7 +42,7 @@ extension TypeMetadata {
     #endif
     
     return conformanceLock.withLock {
-      Echo.conformances[contextDescriptor.ptr, default: []]
+      Echo._conformances[contextDescriptor.ptr, default: []]
     }
   }
   

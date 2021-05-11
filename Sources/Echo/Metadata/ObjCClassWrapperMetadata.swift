@@ -46,7 +46,7 @@ public struct ObjCClassWrapperMetadata: Metadata, LayoutWrapper {
   ///       conformances = metadata.conformances
   public var conformances: [ConformanceDescriptor] {
     conformanceLock.withLock {
-      Echo.conformances[ptr, default: []]
+      Echo._conformances[ptr, default: []]
     }
   }
 }

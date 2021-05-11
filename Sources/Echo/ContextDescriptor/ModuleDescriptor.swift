@@ -27,6 +27,7 @@ public struct ModuleDescriptor: ContextDescriptor, LayoutWrapper {
 }
 
 extension ModuleDescriptor: Equatable {}
+extension ModuleDescriptor: Hashable {}
 
 struct _ModuleDescriptor {
   let _base: _ContextDescriptor

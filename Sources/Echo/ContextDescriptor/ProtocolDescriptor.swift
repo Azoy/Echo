@@ -78,6 +78,7 @@ public struct ProtocolDescriptor: ContextDescriptor, LayoutWrapper {
 }
 
 extension ProtocolDescriptor: Equatable {}
+extension ProtocolDescriptor: Hashable {}
 
 /// A protocol requirement that is defined in some protocol.
 ///

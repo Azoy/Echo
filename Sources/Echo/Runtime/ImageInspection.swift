@@ -72,7 +72,19 @@ func registerProtocols(section: UnsafeRawPointer, size: Int) {
 //===----------------------------------------------------------------------===//
 
 let conformanceLock = NSLock()
-var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
+var _conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
+
+public var conformances: [ProtocolDescriptor: [ModuleDescriptor: [ConformanceDescriptor]]] = [:]
+
+func getModuleDescriptor(from cd: ContextDescriptor) -> ModuleDescriptor {
+  var parent = cd
+  
+  while let newParent = parent.parent {
+    parent = newParent
+  }
+  
+  return ModuleDescriptor(ptr: parent.ptr)
+}
 
 @_cdecl("registerProtocolConformances")
 func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
@@ -84,15 +96,19 @@ func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
     #if canImport(ObjectiveC)
     if let objcClass = conformance.objcClass {
       conformanceLock.withLock {
-        conformances[objcClass.ptr, default: []].append(conformance)
+        _conformances[objcClass.ptr, default: []].append(conformance)
+        //conformances[]
       }
       continue
     }
     #endif
     
     if let descriptor = conformance.contextDescriptor {
+      let module = getModuleDescriptor(from: descriptor)
+      
       conformanceLock.withLock {
-        conformances[descriptor.ptr, default: []].append(conformance)
+        _conformances[descriptor.ptr, default: []].append(conformance)
+        conformances[conformance.protocol, default: [:]][module, default: []].append(conformance)
       }
     }
   }
