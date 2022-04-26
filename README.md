@@ -16,7 +16,7 @@ Example 2: You have Swift on the server using Linux and want to include this dep
 
 Example 3: You have some macOS app that is only supported on Swift 5.3 and will only ever support the latest version of Swift. Similar to the Swift of the Server example, you just need the latest `swift-5.3` branch and 
 
-After understanding what branch you need to include, adding Echo is fairly simple using the Swift Pacakge Manager to add a dependency:
+After understanding what branch you need to include, adding Echo is fairly simple using the Swift Package Manager to add a dependency:
 
 ```swift
 .package(url: "https://github.com/Azoy/Echo.git", .branch("swift-5.3"))
