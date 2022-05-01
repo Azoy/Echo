@@ -64,7 +64,9 @@ public struct ConformanceDescriptor: LayoutWrapper {
         .assumingMemoryBound(to: CChar.self)
       
       guard let anyClass = objc_lookUpClass(ptr) else {
-        fatalError("No Objective-C class named \(ptr.string)")
+        // A conformance with a nil class means the class was weak-linked
+        // from a newer SDK and isn't available in this version of iOS 
+        return nil
       }
       
       return reflect(anyClass) as? ObjCClassWrapperMetadata
