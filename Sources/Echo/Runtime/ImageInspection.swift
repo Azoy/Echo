@@ -56,7 +56,7 @@ let protocolLock = NSLock()
 var _protocols = Set<UnsafeRawPointer>()
 
 @_cdecl("registerProtocols")
-func registerProtocols(section: UnsafeRawPointer, size: Int) {
+public func registerProtocols(section: UnsafeRawPointer, size: Int) {
   for i in 0 ..< size / 4 {
     let start = section.offset(of: i, as: Int32.self)
     let ptr = start.relativeDirectAddress(as: _ProtocolDescriptor.self)
@@ -75,7 +75,7 @@ let conformanceLock = NSLock()
 var conformances = [UnsafeRawPointer: [ConformanceDescriptor]]()
 
 @_cdecl("registerProtocolConformances")
-func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
+public func registerProtocolConformances(section: UnsafeRawPointer, size: Int) {
   for i in 0 ..< size / 4 {
     let start = section.offset(of: i, as: Int32.self)
     let ptr = start.relativeDirectAddress(as: _ConformanceDescriptor.self)
@@ -137,7 +137,7 @@ let typeLock = NSLock()
 var _types = Set<UnsafeRawPointer>()
 
 @_cdecl("registerTypeMetadata")
-func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
+public func registerTypeMetadata(section: UnsafeRawPointer, size: Int) {
   for i in 0 ..< size / 4 {
     let start = section.offset(of: i, as: Int32.self)
     let ptr = start.relativeDirectAddress(as: _ContextDescriptor.self)
@@ -161,7 +161,7 @@ typealias mach_header_platform = mach_header
 #endif
 
 @_cdecl("lookupSection")
-func lookupSection(
+public func lookupSection(
   _ header: UnsafePointer<mach_header>?,
   segment: UnsafePointer<CChar>?,
   section: UnsafePointer<CChar>?,
